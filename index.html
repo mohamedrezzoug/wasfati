@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f6b5c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="وصفتي">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>وصفتي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f6f4;--card:#fff;--ink:#14302b;--muted:#5f7470;--line:#dde6e2;
+  --brand:#0f6b5c;--brand2:#e3f1ec;--warn:#b5520b;--warnbg:#fff1e3;--danger:#b3261e;--dangerbg:#fde8e6;--ok:#1d7a46;
+  --safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg)}
+body{font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;color:var(--ink);font-size:15px;line-height:1.6;padding-top:var(--safe-t)}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{max-width:640px;margin:0 auto;padding:0 14px calc(90px + var(--safe-b))}
+header.top{display:flex;align-items:center;justify-content:space-between;padding:14px 2px 10px}
+header.top h1{font-size:21px;font-weight:700;display:flex;gap:8px;align-items:center}
+header.top h1 .logo{width:32px;height:32px;border-radius:10px;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:17px}
+.sub{color:var(--muted);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}
+.btn{border:0;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;justify-content:center}
+.btn-p{background:var(--brand);color:#fff}
+.btn-s{background:var(--brand2);color:var(--brand)}
+.btn-g{background:#fff;border:1px solid var(--line)}
+.btn-d{background:var(--dangerbg);color:var(--danger)}
+.btn-sm{padding:6px 10px;font-size:13px;border-radius:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grow{flex:1}
+h2{font-size:17px;margin:6px 0 10px}
+h3{font-size:15px}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:var(--safe-b);z-index:20}
+.tabs .in{display:flex;max-width:640px;width:100%}
+.tabs button{flex:1;border:0;background:none;padding:8px 2px 9px;font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer}
+.tabs button span{font-size:20px;line-height:1.2}
+.tabs button.on{color:var(--brand);font-weight:700}
+.empty{text-align:center;color:var(--muted);padding:26px 10px}
+.empty .big{font-size:40px}
+.dose{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.dose:first-of-type{border-top:0}
+.dose .t{font-weight:700;min-width:52px;color:var(--brand)}
+.check{width:38px;height:38px;border-radius:50%;border:2px solid var(--line);background:#fff;font-size:18px;cursor:pointer;flex:none}
+.check.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.pill{display:inline-block;font-size:12px;border-radius:999px;padding:1px 9px;background:var(--brand2);color:var(--brand);font-weight:600}
+.pill.grey{background:#eef1f0;color:var(--muted)}
+.alert{border-radius:12px;padding:9px 12px;font-size:13.5px;margin:8px 0;line-height:1.6}
+.alert.w{background:var(--warnbg);color:var(--warn)}
+.alert.d{background:var(--dangerbg);color:var(--danger)}
+.alert.i{background:var(--brand2);color:var(--brand)}
+.seg{display:flex;background:#e8eeec;border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:none;border-radius:9px;padding:7px 4px;font-weight:600;font-size:13.5px;cursor:pointer;color:var(--muted)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.med{border-top:1px solid var(--line);padding:12px 0}
+.med:first-child{border-top:0;padding-top:4px}
+.med .name{font-weight:700;font-size:16px}
+.expl{font-size:15px;line-height:1.8;margin-top:4px}
+.expl[dir=ltr]{text-align:left}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl td,.tbl th{padding:7px 4px;border-bottom:1px solid var(--line);text-align:right}
+.tbl th{color:var(--muted);font-weight:600;font-size:12.5px}
+.tbl .num{text-align:left;white-space:nowrap}
+.tbl tr.total td{font-weight:700;border-bottom:0;font-size:15.5px}
+label.f{display:block;font-size:13px;font-weight:600;color:var(--muted);margin:10px 0 4px}
+input.i,select.i,textarea.i{width:100%;border:1px solid var(--line);background:#fafcfb;border-radius:11px;padding:9px 11px;font-size:15px}
+textarea.i{resize:vertical}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:13.5px;cursor:pointer}
+.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.chip .x{margin-right:6px;opacity:.7}
+.item-ed{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:10px 0;background:#fcfdfc}
+.item-ed .hd{display:flex;justify-content:space-between;align-items:center}
+.overlay{position:fixed;inset:0;background:rgba(10,25,22,.45);z-index:40;display:none;align-items:flex-end;justify-content:center}
+.overlay.show{display:flex}
+.sheet{background:var(--bg);width:100%;max-width:640px;max-height:94vh;overflow:auto;border-radius:20px 20px 0 0;padding:16px 14px calc(20px + var(--safe-b))}
+.sheet .bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;position:sticky;top:-16px;background:var(--bg);padding:6px 0;z-index:2}
+.toast{position:fixed;bottom:calc(84px + var(--safe-b));left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:12px;font-size:14px;z-index:60;display:none;max-width:90vw;text-align:center}
+.thumb{width:64px;height:64px;border-radius:10px;object-fit:cover;border:1px solid var(--line)}
+.rx{display:flex;gap:12px;align-items:center;cursor:pointer}
+.rx .ic{width:46px;height:46px;border-radius:12px;background:var(--brand2);display:grid;place-items:center;font-size:22px;flex:none}
+.small{font-size:12.5px;color:var(--muted)}
+.disc{font-size:12px;color:var(--muted);text-align:center;margin:14px 6px}
+.hide{display:none!important}
+a{color:var(--brand)}
+.who{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-weight:600;font-size:13.5px;cursor:pointer;max-width:48vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.next{background:var(--brand);color:#fff;border-radius:16px;padding:14px;margin-bottom:10px;cursor:pointer}
+.next .big{font-size:22px;font-weight:700}
+.badge{font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 7px}
+.b-red{background:var(--dangerbg);color:var(--danger)}.b-or{background:var(--warnbg);color:var(--warn)}.b-ok{background:#e2f4ea;color:var(--ok)}
+.ck{display:flex;align-items:center;gap:6px;font-size:13.5px;margin-top:8px;cursor:pointer}
+.ck input{width:18px;height:18px;accent-color:var(--brand)}
+.steps{display:flex;gap:4px;margin-top:8px}.steps button{flex:1;font-size:12px;padding:7px 2px}
+/* وضع كبار السن */
+body.big{font-size:18px}
+body.big .btn{padding:13px 16px;font-size:17px}
+body.big .btn-sm{padding:9px 12px;font-size:15px}
+body.big .check{width:56px;height:56px;font-size:26px}
+body.big .dose{padding:14px 0}
+body.big .dose .t{font-size:20px;min-width:66px}
+body.big .dose b{font-size:19px}
+body.big .tabs button{font-size:13.5px}body.big .tabs button span{font-size:26px}
+body.big .small{font-size:15px}
+body.big .expl{font-size:18px}
+body.big .next .big{font-size:28px}
+.bx{width:46px;height:46px;border-radius:10px;object-fit:cover;border:1px solid var(--line);flex:none;background:#fff;cursor:zoom-in}
+.bx.sm{width:38px;height:38px}.bx.lg{width:96px;height:96px;cursor:default}
+.bx.none{display:grid;place-items:center;font-size:20px;background:var(--brand2);cursor:default}
+body.big .bx{width:60px;height:60px}
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:80;display:none;align-items:center;justify-content:center;padding:20px}
+.lb.show{display:flex}.lb img{max-width:100%;max-height:90vh;border-radius:12px}
+#print{display:none}
+@media print{
+  body *{visibility:hidden}
+  #print,#print *{visibility:visible}
+  #print{display:block;position:absolute;inset:0;padding:18px;font-size:13px;color:#000}
+  #print h1{font-size:19px;margin-bottom:4px}
+  #print .med{border-top:1px solid #ccc;padding:8px 0}
+  #print table{width:100%;border-collapse:collapse;margin-top:10px}
+  #print td,#print th{border:1px solid #ccc;padding:5px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1><span class="logo">💊</span>وصفتي</h1>
+    <button class="who" id="whoBtn" onclick="peopleSheet()"></button>
+  </header>
+  <div id="frameNote" class="alert i hide">👀 هادي معاينة. باش يخدمو التنبيهات فالكاليندر، الـ PDF والتحميل، حط التطبيق فـ GitHub Pages وسطبو فالتليفون.</div>
+  <main id="view"></main>
+  <p class="disc">التطبيق كيعاود غير داكشي اللي كتب الطبيب. ما كيبدلش الجرعة وما كيوقفش الدواء. إلا شكيتي فشي حاجة، سول الطبيب ولا الصيدلي.</p>
+</div>
+
+<nav class="tabs"><div class="in" id="tabs"></div></nav>
+<div class="overlay" id="ov"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+<div class="lb" id="lb" onclick="this.classList.remove('show')"><img id="lbImg" alt=""></div>
+<div id="print"></div>
+<input type="file" id="fileCam" accept="image/*" capture="environment" class="hide">
+<input type="file" id="fileAny" class="hide">
+
+<script>
+/* ================= أدوات عامة ================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const pad=n=>String(n).padStart(2,'0');
+const isoDay=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today=()=>isoDay(new Date());
+const addDays=(iso,n)=>{const d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return isoDay(d)};
+const fmtDate=iso=>{if(!iso)return'';const d=new Date(iso+'T12:00:00');return d.toLocaleDateString('ar-MA',{day:'numeric',month:'long',year:'numeric'})};
+const money=n=>(Math.round((+n||0)*100)/100).toLocaleString('fr-MA',{minimumFractionDigits:2,maximumFractionDigits:2})+' درهم';
+const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\u0600-\u06ff]+/g,' ').trim();
+const inFrame=(()=>{try{return window.self!==window.top}catch(e){return true}})();
+function toast(t,ms=2600){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',ms)}
+
+/* ================= التخزين (IndexedDB مع بديل) ================= */
+const DB={db:null,mem:{},
+  async open(){try{this.db=await new Promise((res,rej)=>{const r=indexedDB.open('wasfati',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}catch(e){this.db=null}},
+  async get(k){if(!this.db)return this.mem[k];try{return await new Promise((res,rej)=>{const r=this.db.transaction('kv').objectStore('kv').get(k);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}catch(e){return this.mem[k]}},
+  async set(k,v){this.mem[k]=v;if(!this.db)return;try{await new Promise((res,rej)=>{const t=this.db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=res;t.onerror=()=>rej(t.error)})}catch(e){}}
+};
+const newPerson=(name='')=>({id:uid(),name,allergies:[],org:'cnss',rate:70,aldRate:100});
+const blank=()=>{const p=newPerson('أنا');return{v:2,profile:{lang:'dr',big:false},people:[p],cur:p.id,catalog:[],rx:[],taken:{},pharmacies:[],interactions:[],home:[],recalls:[]}};
+let S=blank();
+function migrate(d){
+  const s={...blank(),...d};
+  if(!Array.isArray(d.people)||!d.people.length){const p=newPerson(d.profile?.name||'أنا');p.allergies=d.profile?.allergies||[];s.people=[p];s.cur=p.id}
+  if(!s.people.some(p=>p.id===s.cur))s.cur=s.people[0].id;
+  for(const r of s.rx)if(!r.personId)r.personId=s.people[0].id;
+  s.home=s.home||[];s.recalls=s.recalls||[];s.profile={lang:'dr',big:false,...(s.profile||{})};
+  return s;
+}
+const me=()=>S.people.find(p=>p.id===S.cur)||S.people[0];
+const personOf=r=>S.people.find(p=>p.id===r.personId)||me();
+const myRx=()=>S.rx.filter(r=>r.personId===S.cur);
+let saveT;function save(){clearTimeout(saveT);saveT=setTimeout(()=>DB.set('state',S),250)}
+
+/* ================= قاعدة الأدوية المرجعية (اللائحة الرسمية) ================= */
+// صف واحد: {n:الاسم, d:DCI, dz:الدوزاج, f:الشكل/التقديم, p:PPV, b:الباركود, l:المختبر}
+let REF=null, refIdx=null;
+function buildRefIdx(){
+  refIdx={byBc:new Map(),byName:new Map()};if(!REF)return;
+  for(const r of REF.rows){r._s=norm([r.n,r.d,r.dz,r.l].join(' '));if(r.b)refIdx.byBc.set(r.b,r);refIdx.byName.set(norm(refLabel(r)),r)}
+}
+const refLabel=r=>{let s=r.n||'';if(r.dz&&!norm(s).includes(norm(r.dz)))s+=' '+r.dz;if(r.f&&!norm(s).includes(norm(r.f)))s+=' — '+r.f;return s.trim()};
+function refSearch(q,lim=25){q=norm(q);if(!q||!REF)return[];const parts=q.split(' ');const out=[];for(const r of REF.rows){if(parts.every(p=>r._s.includes(p))){out.push(r);if(out.length>=lim)break}}return out}
+function refFor(c){if(!REF||!c)return null;return (c.barcode&&refIdx.byBc.get(c.barcode))||refIdx.byName.get(norm(c.name))||null}
+function catFromRef(r){
+  let c=S.catalog.find(x=>(r.b&&x.barcode===r.b)||norm(x.name)===norm(refLabel(r)));
+  if(!c){c={id:uid(),name:refLabel(r),dci:r.d||'',use:'',price:r.p||0,barcode:r.b||''};S.catalog.push(c);save()}
+  else if(r.p&&c.price!==r.p){c.price=r.p;save()}
+  return c;
+}
+const strength=s=>{const m=String(s||'').toLowerCase().replace(',','.').match(/(\d+(?:\.\d+)?)\s*(mg|g|µg|mcg|ui|ml|%)/);return m?(+m[1])+m[2]:''};
+const FORMS=[['cp','comprim'],['gel','gelul'],['sach','sachet'],['sir','sirop'],['inj','inject'],['supp','suppo'],['pom','pommade'],['cr','creme'],['gtt','goutte'],['susp','suspension']];
+const formOf=s=>{const n=norm(s);const f=FORMS.find(([k,w])=>n.includes(w));return f?f[0]:''};
+function cheaperOptions(it){
+  if(!REF)return[];const inf=itemInfo(it);if(!inf.dci||!inf.price)return[];
+  const c=it.catId?catFind(it.catId):null;const me=refFor(c);
+  const myLabel=me?refLabel(me):inf.name, st=strength(me?.dz||myLabel), fm=formOf(myLabel);
+  if(!st)return[]; // بلا دوزاج معروف ما نقارنوش
+  const d=norm(inf.dci);
+  return REF.rows.filter(r=>r.p&&r.p<inf.price&&norm(r.d)===d&&strength(r.dz||refLabel(r))===st&&(!fm||!formOf(refLabel(r))||formOf(refLabel(r))===fm)&&r!==me)
+    .sort((a,b)=>a.p-b.p).slice(0,2);
+}
+let sheetjsP=null;
+function loadSheetJS(){if(window.XLSX)return Promise.resolve();if(!sheetjsP)sheetjsP=new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';s.onload=res;s.onerror=()=>{sheetjsP=null;rej()};document.head.appendChild(s)});return sheetjsP}
+const COLS={
+  n:['nom','designation','specialite','denomination','produit','libelle','name','medicament'],
+  d:['dci','substance','principe','composition','molecule'],
+  dz:['dosage','concentration'],
+  f:['forme','presentation','conditionnement'],
+  p:['ppv','prix public','prix de vente','price','prix'],
+  b:['code barre','codebarre','code barre','ean','gtin','barcode','code_barre','cip'],
+  l:['laboratoire','titulaire','fabricant','labo'],
+};
+function detectCols(row){
+  const h=row.map(x=>norm(x));const cols={};let score=0;
+  for(const k in COLS){
+    let idx=-1;
+    for(const w of COLS[k]){idx=h.findIndex((x,i)=>x&&x.includes(norm(w))&&!Object.values(cols).includes(i)&&!(k==='p'&&/hop|ph |pfht|ppm|base/.test(x)));if(idx>=0)break}
+    if(idx>=0){cols[k]=idx;score++}
+  }
+  return {cols,score};
+}
+function mapRows(aoa){
+  let best={score:0},hi=-1;
+  for(let i=0;i<Math.min(25,aoa.length);i++){const d=detectCols(aoa[i]||[]);if(d.score>best.score&&d.cols.n!=null){best=d;hi=i}}
+  if(hi<0||best.score<2)throw new Error('cols');
+  const C=best.cols,out=[];
+  const num=v=>{const s=String(v??'').replace(/\s| /g,'').replace(/dh|mad/ig,'').replace(',','.');const x=parseFloat(s);return isFinite(x)?Math.round(x*100)/100:0};
+  for(const row of aoa.slice(hi+1)){
+    const n=String(row[C.n]??'').trim();if(!n)continue;
+    const r={n};
+    if(C.d!=null&&row[C.d])r.d=String(row[C.d]).trim();
+    if(C.dz!=null&&row[C.dz])r.dz=String(row[C.dz]).trim();
+    if(C.f!=null&&row[C.f])r.f=String(row[C.f]).trim();
+    if(C.p!=null){const p=num(row[C.p]);if(p)r.p=p}
+    if(C.b!=null){const b=String(row[C.b]??'').replace(/\D/g,'');if(b.length>=8)r.b=b.length===14?b.replace(/^0/,''):b}
+    if(C.l!=null&&row[C.l])r.l=String(row[C.l]).trim();
+    out.push(r);
+  }
+  return {rows:out,cols:Object.keys(C)};
+}
+async function setRef(rows,source,date){
+  REF={meta:{count:rows.length,source,date:date||today()},rows};
+  buildRefIdx();
+  let upd=0;for(const c of S.catalog){const r=refFor(c);if(r&&r.p&&r.p!==c.price){c.price=r.p;upd++}if(r&&!c.dci&&r.d)c.dci=r.d}
+  save();
+  await DB.set('ref',{meta:REF.meta,rows:rows.map(({_s,...r})=>r)});
+  return upd;
+}
+async function importRefFile(){
+  const f=await pickFile(false,'.xlsx,.xls,.csv,.json,.txt');if(!f)return;
+  toast('كنقرا الملف…',8000);
+  try{
+    let aoa;
+    if(/\.json$/i.test(f.name)){const j=JSON.parse(await f.text());if(!Array.isArray(j.rows))throw new Error('json');const upd=await setRef(j.rows,j.meta?.source||f.name,j.meta?.date);toast(`✅ ${j.rows.length} دواء${upd?` · تحدث ثمن ${upd} فالكتالوج`:''}`,4000);render();return}
+    if(/\.(csv|txt)$/i.test(f.name)){const txt=await f.text();const lines=txt.split(/\r?\n/);const sep=(lines[0].match(/;/g)||[]).length>=(lines[0].match(/,/g)||[]).length?';':(lines[0].includes('\t')?'\t':',');aoa=lines.map(l=>csvSplit(l,sep))}
+    else{await loadSheetJS();const wb=XLSX.read(await f.arrayBuffer(),{type:'array'});aoa=[];for(const sn of wb.SheetNames){const part=XLSX.utils.sheet_to_json(wb.Sheets[sn],{header:1,raw:false,defval:''});if(!aoa.length)aoa=part;else{try{mapRows(part);aoa=aoa.concat(part.slice(1))}catch(e){}}}}
+    const {rows,cols}=mapRows(aoa);
+    if(!rows.length)throw new Error('empty');
+    const upd=await setRef(rows,f.name);
+    toast(`✅ تزادو ${rows.length} دواء (${cols.join(', ')})${upd?` · تحدث ثمن ${upd} فالكتالوج`:''}`,4500);render();
+  }catch(e){toast(e.message==='cols'?'ما لقيتش الأعمدة. خاص على الأقل عمود الاسم + الثمن ولا DCI':'ما قدرتش نقرا هاد الملف',4500)}
+}
+function csvSplit(l,sep){const out=[];let cur='',q=false;for(const ch of l){if(ch==='"'){q=!q;continue}if(ch===sep&&!q){out.push(cur);cur='';continue}cur+=ch}out.push(cur);return out.map(s=>s.trim())}
+async function fetchRefFromApp(silent){
+  const msg=[];
+  try{const r=await fetch('medicaments.json',{cache:'no-cache'});if(!r.ok)throw 0;const j=await r.json();if(!REF||j.meta?.date!==REF.meta.date||j.rows.length!==REF.rows.length){const upd=await setRef(j.rows,j.meta?.source||'medicaments.json',j.meta?.date);msg.push(`${j.rows.length} دواء${upd?` (${upd} ثمن تبدل)`:''}`)}}catch(e){}
+  try{const r=await fetch('rappels.json',{cache:'no-cache'});if(!r.ok)throw 0;const j=await r.json();let n=0;for(const x of (j.recalls||[])){if(!S.recalls.some(y=>norm(y.name)===norm(x.name)&&norm(y.lot||'')===norm(x.lot||''))){S.recalls.push({...x,id:x.id||uid()});n++}}if(n){save();msg.push(`${n} سحب جديد`)}}catch(e){}
+  if(msg.length){toast('✅ تحديث: '+msg.join(' · '),4000);render()}
+  else if(!silent)toast('ما كاين حتى تحديث. (خاص medicaments.json ولا rappels.json يكونو فـ GitHub جنب index.html)',4500);
+}
+function exportRef(){if(!REF)return;download('medicaments.json',JSON.stringify({meta:REF.meta,rows:REF.rows.map(({_s,...r})=>r)}),'application/json');if(inFrame)toast('فالمعاينة التحميل ممنوع')}
+
+/* ================= القاموس ================= */
+const LANGS={dr:'الدارجة',ar:'العربية',fr:'Français'};
+const UNITS={
+  cp:{dr:'قرص',ar:'قرص',fr:'comprimé(s)'},
+  gel:{dr:'كبسولة',ar:'كبسولة',fr:'gélule(s)'},
+  sach:{dr:'ساشي',ar:'كيس',fr:'sachet(s)'},
+  cuil:{dr:'معلقة',ar:'ملعقة',fr:'cuillère(s)'},
+  ml:{dr:'ملل',ar:'مل',fr:'ml'},
+  gtt:{dr:'نقطة',ar:'قطرة',fr:'goutte(s)'},
+  bouf:{dr:'بخة',ar:'بخّة',fr:'bouffée(s)'},
+  inj:{dr:'حقنة',ar:'حقنة',fr:'injection(s)'},
+  supp:{dr:'تحميلة',ar:'تحميلة',fr:'suppositoire(s)'},
+  app:{dr:'دهنة',ar:'دهن',fr:'application(s)'},
+};
+const SLOTS=[
+  {k:'m',t:'08:00',dr:'فالصباح',ar:'صباحاً',fr:'le matin'},
+  {k:'n',t:'13:00',dr:'فالغدا',ar:'ظهراً',fr:'à midi'},
+  {k:'s',t:'20:00',dr:'فالعشا',ar:'مساءً',fr:'le soir'},
+  {k:'c',t:'22:30',dr:'قبل النعاس',ar:'قبل النوم',fr:'au coucher'},
+];
+const FOOD={
+  '':{dr:'',ar:'',fr:''},
+  before:{dr:'قبل الماكلة',ar:'قبل الأكل',fr:'avant le repas'},
+  with:{dr:'مع الماكلة',ar:'مع الأكل',fr:'pendant le repas'},
+  after:{dr:'من بعد الماكلة',ar:'بعد الأكل',fr:'après le repas'},
+  fast:{dr:'على الريق',ar:'على الريق',fr:'à jeun'},
+};
+const slotLabel=(t,l)=>{const s=SLOTS.find(x=>x.t===t);return s?s[l]:(l==='fr'?'à '+t.replace(':','h'):'الساعة '+t)};
+const timesWord=(n,l)=>l==='fr'?`${n} fois par jour`:l==='ar'?(n===1?'مرة واحدة في اليوم':n===2?'مرتين في اليوم':`${n} مرات في اليوم`):(n===1?'مرة وحدة فالنهار':n===2?'جوج مرات فالنهار':`${n} مرات فالنهار`);
+
+function explain(it,l){
+  const u=(UNITS[it.unit]||UNITS.cp)[l], q=it.qty||'1', n=(it.times||[]).length;
+  const slots=(it.times||[]).map(t=>slotLabel(t,l)).join(l==='fr'?', ':'، ');
+  const food=FOOD[it.food||''][l];
+  const days=+it.days;
+  let s;
+  if(l==='fr'){
+    s=`Prendre ${q} ${u}${n?' '+timesWord(n,l)+` (${slots})`:''}${food?', '+food:''}`;
+    s+=days?`, pendant ${days} jour${days>1?'s':''}.`:', selon l’avis du médecin.';
+  }else if(l==='ar'){
+    s=`تناول ${q} ${u}${n?' '+timesWord(n,l)+` (${slots})`:''}${food?'، '+food:''}`;
+    s+=days?`، لمدة ${days} ${days>2&&days<11?'أيام':'يوم'}.`:'، حسب توجيهات الطبيب.';
+  }else{
+    s=`خود ${q} ${u}${n?' '+timesWord(n,l)+` (${slots})`:''}${food?'، '+food:''}`;
+    s+=days?`، لمدة ${days} ${days>2&&days<11?'أيام':'يوم'}.`:'، حتى يقول ليك الطبيب.';
+  }
+  return s;
+}
+const T={
+  why:{dr:'علاش:',ar:'الاستعمال:',fr:'Indication :'},
+  note:{dr:'ملاحظة الطبيب:',ar:'ملاحظة الطبيب:',fr:'Note du médecin :'},
+  rx:{dr:'الوصفة ديال',ar:'وصفة بتاريخ',fr:'Ordonnance du'},
+  dr:{dr:'الطبيب',ar:'الطبيب',fr:'Médecin'},
+  total:{dr:'المجموع',ar:'المجموع',fr:'Total'},
+  med:{dr:'الدواء',ar:'الدواء',fr:'Médicament'},
+  boxes:{dr:'العلب',ar:'العلب',fr:'Boîtes'},
+  price:{dr:'الثمن',ar:'الثمن',fr:'Prix'},
+};
+
+/* ================= الحسابات ================= */
+const catFind=id=>S.catalog.find(c=>c.id===id);
+function itemInfo(it){const c=it.catId?catFind(it.catId):null;return{name:c?.name||it.name||'—',dci:c?.dci||it.dci||'',use:c?.use||it.use||'',price:(it.price!==''&&it.price!=null&&!isNaN(+String(it.price).replace(',','.')))?+String(it.price).replace(',','.'):(+c?.price||0)}}
+const itemTotal=it=>itemInfo(it).price*(+it.boxes||1);
+const rxTotal=r=>r.items.reduce((a,it)=>a+itemTotal(it),0);
+const rxEnd=r=>{const m=Math.max(0,...r.items.map(it=>+it.days||0));return m?addDays(r.date,m-1):null};
+const itemActiveOn=(r,it,day)=>{if(day<r.date)return false;const d=+it.days;if(!d)return day<=addDays(r.date,365)&&!r.closed;return day<=addDays(r.date,d-1)};
+const rxActive=r=>r.items.some(it=>itemActiveOn(r,it,today()));
+
+function dosesOn(day){
+  const out=[];
+  for(const r of myRx())for(const it of r.items){
+    if(!itemActiveOn(r,it,day))continue;
+    for(const t of it.times||[])out.push({r,it,t,key:`${day}|${r.id}|${it.id}|${t}`});
+  }
+  return out.sort((a,b)=>a.t.localeCompare(b.t));
+}
+
+function warningsFor(r){
+  const W=[];const al=(personOf(r).allergies||[]).map(norm).filter(Boolean);
+  const list=r.items.map(it=>({it,...itemInfo(it)}));
+  // الأدوية الأخرى اللي خدامة دابا عند نفس الشخص
+  const others=[];for(const o of S.rx)if(o.id!==r.id&&o.personId===r.personId&&rxActive(o))for(const it of o.items)others.push({it,...itemInfo(it),from:o});
+  for(const h of recallHitsRx(r))W.push({lvl:'d',txt:h});
+  for(const m of list){
+    const hay=norm(m.name+' '+m.dci);
+    for(const a of al)if(a&&hay.includes(a))W.push({lvl:'d',txt:`⚠️ حساسية: «${m.name}» فيه «${a}» اللي مسجل عندك فالحساسية. ما تبداش هاد الدواء حتى تكلم الطبيب ولا الصيدلي.`});
+  }
+  const all=[...list,...others];
+  for(let i=0;i<list.length;i++)for(let j=0;j<all.length;j++){
+    const A=list[i],B=all[j];if(j<list.length&&j<=i)continue;
+    if(A.dci&&B.dci&&norm(A.dci)===norm(B.dci))W.push({lvl:'w',txt:`🔁 نفس المادة الفعالة (${A.dci}) كاينة فـ «${A.name}» و«${B.name}»${B.from?' (وصفة أخرى)':''}. تأكد مع الصيدلي باش ما تاخدش الجرعة جوج مرات.`});
+    for(const x of S.interactions){
+      const a=norm(x.a),b=norm(x.b);if(!a||!b)continue;
+      const ha=norm(A.name+' '+A.dci),hb=norm(B.name+' '+B.dci);
+      if((ha.includes(a)&&hb.includes(b))||(ha.includes(b)&&hb.includes(a)))W.push({lvl:'w',txt:`⚡ تفاعل مسجل: «${A.name}» + «${B.name}»${B.from?' (وصفة أخرى)':''}. ${x.note?esc(x.note):''}${x.src?` — المصدر: ${esc(x.src)}`:''}`});
+    }
+  }
+  return W;
+}
+
+/* ---------- 📦 المخزون ديال العلب ---------- */
+const qtyNum=q=>{q=String(q||'1').trim().replace(',','.');const f=q.match(/^(\d+)\s*\/\s*(\d+)$/);if(f)return(+f[1])/(+f[2]);const n=parseFloat(q);return isFinite(n)&&n>0?n:1};
+function stockOf(r,it){
+  const per=+it.perBox;if(!per)return null;
+  const takenN=Object.keys(S.taken).filter(k=>k.includes(`|${r.id}|${it.id}|`)).length;
+  const left=Math.max(0,(+it.boxes||1)*per+(+it.stockAdj||0)-takenN*qtyNum(it.qty));
+  const perDay=(it.times||[]).length*qtyNum(it.qty);
+  const daysLeft=perDay?Math.floor(left/perDay):null;
+  let need=null;if(+it.days){const end=addDays(r.date,+it.days-1);const rem=Math.max(0,Math.round((new Date(end+'T12:00')-new Date(today()+'T12:00'))/864e5)+1);need=rem}
+  const low=daysLeft!=null&&itemActiveOn(r,it,today())&&daysLeft<=3&&(need==null||need>daysLeft);
+  return{left:Math.round(left*10)/10,daysLeft,low,unit:UNITS[it.unit||'cp'].dr};
+}
+function addBox(rid,iid){const r=S.rx.find(x=>x.id===rid);const it=r?.items.find(x=>x.id===iid);if(!it)return;it.stockAdj=(+it.stockAdj||0)+(+it.perBox||0);save();render();toast('📦 تزادت علبة جديدة')}
+
+/* ---------- 💳 التعويض ديال AMO ---------- */
+const ORGS={cnss:'CNSS',cnops:'CNOPS',other:'تأمين آخر',none:'بلا تغطية'};
+function rxReimb(r){
+  const p=personOf(r);if(!p||p.org==='none')return null;
+  let exp=0,base=0;
+  for(const it of r.items){if(it.reimb===false)continue;const t=itemTotal(it);base+=t;exp+=t*((it.ald?+p.aldRate:+p.rate)||0)/100}
+  return{exp:Math.round(exp*100)/100,base,org:ORGS[p.org]||'',rate:p.rate};
+}
+const CLAIM=[['none','ما تصيفطش'],['sent','تصيفط'],['proc','فالمعالجة'],['paid','تعوّض']];
+function setClaim(id,st){const r=S.rx.find(x=>x.id===id);r.claim={...(r.claim||{}),status:st};if(st==='sent'&&!r.claim.sentDate)r.claim.sentDate=today();if(st==='paid'){r.claim.paidDate=r.claim.paidDate||today();if(r.claim.paidAmount==null){const e=rxReimb(r);r.claim.paidAmount=e?e.exp:0}}save();showRx(id)}
+
+/* ---------- 🏠 صيدلية الدار ---------- */
+function expiryState(m){if(!m)return{k:'?',t:'بلا تاريخ',c:'b-or'};const end=new Date(m+'-28T12:00');const d=(end-new Date())/864e5;if(d<0)return{k:'x',t:'فات التاريخ',c:'b-red'};if(d<=45)return{k:'soon',t:'قريب يفوت',c:'b-or'};return{k:'ok',t:'صالح',c:'b-ok'}}
+const fmtMonth=m=>m?new Date(m+'-15T12:00').toLocaleDateString('ar-MA',{month:'long',year:'numeric'}):'—';
+
+/* ---------- 🚨 الأدوية المسحوبة ---------- */
+function recallMatch(rc,name,barcode,lot){
+  if(rc.barcode&&barcode&&rc.barcode!==barcode)return false;
+  if(!rc.barcode||!barcode){const words=norm(rc.name).split(' ').filter(w=>w.length>1);if(!words.length||!words.every(w=>norm(name).includes(w)))return false}
+  if(rc.lot&&lot&&norm(rc.lot)!==norm(lot))return false;
+  return true;
+}
+function recallHitsRx(r){const out=[];for(const it of r.items){const inf=itemInfo(it);const c=it.catId?catFind(it.catId):null;for(const rc of S.recalls)if(recallMatch(rc,inf.name,c?.barcode,''))out.push(`🚨 سحب من السوق: «${esc(inf.name)}»${rc.lot?` — الحصة (lot) <b>${esc(rc.lot)}</b>، شوف الرقم اللي على العلبة`:''}. ${esc(rc.note||'')} ${rc.src?'— '+esc(rc.src):''}. ما تستعملوش حتى تسول الصيدلي.`)}return out}
+function recallHitsHome(){const out=[];for(const h of S.home){const c=h.catId?catFind(h.catId):null;const name=c?.name||h.name;for(const rc of S.recalls)if(recallMatch(rc,name,c?.barcode,h.lot))out.push(`🚨 «${esc(name)}» اللي فالدار${rc.lot?` (lot ${esc(rc.lot)})`:''} تسحب من السوق. ${esc(rc.note||'')}`)}return out}
+
+/* ================= الصوت ================= */
+function speak(text,l){
+  if(!('speechSynthesis' in window)){toast('القراءة بالصوت ما متوفراش فهاد المتصفح');return}
+  speechSynthesis.cancel();
+  const code=l==='fr'?'fr':'ar';
+  const vs=speechSynthesis.getVoices();
+  const v=vs.find(v=>v.lang.toLowerCase().startsWith(code+'-ma'))||vs.find(v=>v.lang.toLowerCase().startsWith(code));
+  const parts=text.split(/(?<=[.!؟?])\s+/);
+  parts.forEach((p,i)=>{const u=new SpeechSynthesisUtterance(p);u.lang=v?.lang||(code==='fr'?'fr-FR':'ar-SA');if(v)u.voice=v;u.rate=.9;speechSynthesis.speak(u)});
+  if(!v)toast(code==='fr'?'ما لقيتش صوت فرنسي فالجهاز':'ما لقيتش صوت عربي فالجهاز — زيدو من إعدادات التليفون',3500);
+}
+if('speechSynthesis' in window)speechSynthesis.onvoiceschanged=()=>{};
+function rxSpeechText(r,l){
+  const intro=l==='fr'?`Ordonnance du ${new Date(r.date+'T12:00').toLocaleDateString('fr-FR')}.`:l==='ar'?`وصفة بتاريخ ${fmtDate(r.date)}.`:`الوصفة ديال ${fmtDate(r.date)}.`;
+  return intro+' '+r.items.map(it=>`${itemInfo(it).name}. ${explain(it,l)}${it.note?' '+it.note+'.':''}`).join(' ');
+}
+
+/* ================= الصور والباركود ================= */
+function pickFile(capture=true,accept='image/*'){
+  return new Promise(res=>{const inp=capture?$('#fileCam'):$('#fileAny');inp.accept=accept;inp.value='';inp.onchange=()=>res(inp.files[0]||null);inp.click()});
+}
+function compress(file,max=1100,q=.72){
+  return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{const s=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',q))};img.onerror=rej;img.src=url});
+}
+let lastScanPhoto=null;
+const catPhoto=id=>id?catFind(id)?.photo||'':'';
+function boxImg(photo,cls=''){return photo?`<img class="bx ${cls}" src="${photo}" alt="" onclick="event.stopPropagation();showLb(this.src)">`:''}
+function showLb(src){$('#lbImg').src=src;$('#lb').classList.add('show')}
+function attachPhoto(c){if(c&&lastScanPhoto&&!c.photo){c.photo=lastScanPhoto;save()}}
+let zxingP=null;
+function loadZXing(){if(window.ZXing)return Promise.resolve();if(!zxingP)zxingP=new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s)});return zxingP}
+async function scanBarcode(){
+  const f=await pickFile(true);if(!f)return null;
+  lastScanPhoto=null;try{lastScanPhoto=await compress(f,520,.72)}catch(e){}
+  toast('كنقرا الباركود…');
+  try{
+    if('BarcodeDetector' in window){
+      const bmp=await createImageBitmap(f);
+      const det=new BarcodeDetector({formats:['ean_13','ean_8','code_128','data_matrix','qr_code','upc_a']});
+      const r=await det.detect(bmp);if(r[0])return cleanCode(r[0].rawValue);
+    }
+  }catch(e){}
+  try{
+    await loadZXing();
+    const url=URL.createObjectURL(f);
+    const hints=new Map();hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
+    const reader=new ZXing.BrowserMultiFormatReader(hints);
+    const r=await reader.decodeFromImageUrl(url);URL.revokeObjectURL(url);
+    return cleanCode(r.getText());
+  }catch(e){toast('ما قدرتش نقرا الباركود. قرّب أكثر، ضوء مزيان، ولا كتبو بيدك',3500);return null}
+}
+// Data Matrix ديال العلب كيكون فيه GTIN بعد (01)
+function cleanCode(t){t=String(t||'').replace(/[\x1d]/g,'');const m=t.match(/^01(\d{14})/);if(m)return m[1].replace(/^0/,'');return t.trim()}
+
+/* ================= التنقل ================= */
+const TABS=[['today','⏰','اليوم'],['rx','📋','الوصفات'],['meds','💊','الأدوية'],['ph','🏥','الصيدليات'],['me','👤','الملف']];
+let tab='today';
+function renderTabs(){$('#tabs').innerHTML=TABS.map(([k,i,n])=>`<button class="${k===tab?'on':''}" onclick="go('${k}')"><span>${i}</span>${n}</button>`).join('')}
+function go(k){tab=k;renderTabs();render();window.scrollTo(0,0)}
+function render(){({today:vToday,rx:vRx,meds:vMeds,ph:vPh,me:vMe})[tab]()}
+
+/* ================= اليوم ================= */
+function vToday(){
+  const d=dosesOn(today());
+  const done=d.filter(x=>S.taken[x.key]).length;
+  let h='';
+  // التنبيهات: سحب، علب قربات تسالي، صلاحية
+  const rc=[...new Set([...myRx().filter(rxActive).flatMap(recallHitsRx),...recallHitsHome()])];
+  for(const t of rc)h+=`<div class="alert d">${t}</div>`;
+  for(const r of myRx())for(const it of r.items){const s=stockOf(r,it);if(s&&s.low)h+=`<div class="alert w">📦 «${esc(itemInfo(it).name)}»: باقي ${s.left} ${s.unit}${s.daysLeft!=null?` (${s.daysLeft===0?'ما كيكفيش حتى لغدا':'كيكفي '+s.daysLeft+' أيام'})`:''}. شري علبة جديدة. <button class="btn btn-s btn-sm" onclick="addBox('${r.id}','${it.id}')">+ شريت علبة</button></div>`}
+  const exp=S.home.filter(x=>['x','soon'].includes(expiryState(x.expiry).k));
+  if(exp.length)h+=`<div class="alert w" style="cursor:pointer" onclick="medSeg='home';go('meds')">🏠 صيدلية الدار: ${exp.length} دواء فات ولا قريب يفوت التاريخ ديالو ←</div>`;
+  // الدوا الجاي
+  const now=new Date(),hm=`${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const nx=d.find(x=>!S.taken[x.key]&&x.t>=addMin(hm,-60));
+  if(nx){const inf=itemInfo(nx.it);h+=`<div class="next row" style="flex-wrap:nowrap;align-items:center" onclick="speakDose('${nx.key}')">${catPhoto(nx.it.catId)?`<img class="bx lg" style="border:0" src="${catPhoto(nx.it.catId)}" alt="">`:''}<div class="grow"><div class="small" style="color:#cfe9e1">الدوا الجاي · ${nx.t} 🔊</div><div class="big">${esc(inf.name)}</div><div>${esc(nx.it.qty||1)} ${UNITS[nx.it.unit||'cp'].dr}${nx.it.food?' · '+FOOD[nx.it.food].dr:''}</div></div></div>`}
+  h+=`<div class="card"><div class="row"><div class="grow"><h2 style="margin:0">مواعيد اليوم</h2><div class="sub">${new Date().toLocaleDateString('ar-MA',{weekday:'long',day:'numeric',month:'long'})} · ${d.length?`${done} من ${d.length} تاخدات`:'ما كاين حتى دواء'}</div></div>${d.length?`<button class="btn btn-s btn-sm" onclick="speakToday()">🔊 اقرا</button>`:''}</div>`;
+  if(!d.length)h+=`<div class="empty"><div class="big">🌿</div>زيد وصفة ديال ${esc(me().name)} باش يتوجد جدول الأدوية.<br><br><button class="btn btn-p" onclick="editRx()">+ وصفة جديدة</button> <button class="btn btn-g" onclick="loadDemo()">جرب بمثال</button></div>`;
+  for(const x of d){const inf=itemInfo(x.it);const on=!!S.taken[x.key];
+    h+=`<div class="dose"><span class="t">${x.t}</span>${boxImg(catPhoto(x.it.catId),'sm')}<div class="grow" onclick="speakDose('${x.key}')" style="cursor:pointer"><b>${esc(inf.name)}</b><div class="small">${esc(x.it.qty||1)} ${UNITS[x.it.unit||'cp'].dr}${x.it.food?' · '+FOOD[x.it.food].dr:''}</div></div><button class="check ${on?'on':''}" onclick="toggleTaken('${x.key}')" aria-label="تاخدات">${on?'✓':''}</button></div>`}
+  h+=`</div>`;
+  const act=myRx().filter(rxActive);
+  if(act.length)h+=`<div class="card"><h3>الوصفات الجارية</h3>${act.map(r=>`<div class="small" style="margin-top:6px;cursor:pointer" onclick="showRx('${r.id}')">📋 ${fmtDate(r.date)}${r.doctor?' — '+esc(r.doctor):''} · ${r.items.length} أدوية${rxEnd(r)?' · كتسالي '+fmtDate(rxEnd(r)):''}</div>`).join('')}</div>`;
+  h+=`<div class="alert i">⏰ التنبيهات: من صفحة الوصفة، ضغط «📅 زيد للكاليندر» باش يرن ليك التليفون فكل موعد، حتى والتطبيق مسدود.</div>`;
+  $('#view').innerHTML=h;
+}
+const addMin=(hm,m)=>{let [h,mi]=hm.split(':').map(Number);let t=Math.max(0,h*60+mi+m);return`${pad(Math.floor(t/60))}:${pad(t%60)}`};
+function toggleTaken(k){if(S.taken[k])delete S.taken[k];else{S.taken[k]=Date.now();if(S.profile.big)speak({dr:'مزيان، تسجلات.',ar:'أحسنت، تم التسجيل.',fr:'C’est noté.'}[S.profile.lang||'dr'],S.profile.lang||'dr')}save();vToday()}
+function speakDose(key){const x=dosesOn(today()).find(d=>d.key===key);if(!x)return;const l=S.profile.lang||'dr';speak(`${itemInfo(x.it).name}. ${explain(x.it,l)}${x.it.note?' '+x.it.note:''}`,l)}
+function speakToday(){const l=S.profile.lang||'dr';const d=dosesOn(today());
+  const txt=d.map(x=>`${l==='fr'?'À '+x.t.replace(':',' heures '):'الساعة '+x.t}: ${itemInfo(x.it).name}، ${x.it.qty||1} ${UNITS[x.it.unit||'cp'][l]}${x.it.food?'، '+FOOD[x.it.food][l]:''}.`).join(' ');speak(txt,l)}
+
+/* ================= الوصفات ================= */
+function vRx(){
+  let h=`<div class="row" style="margin-bottom:10px"><h2 class="grow" style="margin:0">الوصفات</h2><button class="btn btn-p" onclick="editRx()">+ وصفة جديدة</button></div>`;
+  const mine=myRx();
+  if(!mine.length)h+=`<div class="card empty"><div class="big">📋</div>ما زال ما زدتي حتى وصفة ديال ${esc(me().name)}.<br><br><button class="btn btn-g" onclick="loadDemo()">جرب بمثال</button></div>`;
+  // ملخص التعويض
+  if(me().org!=='none'&&mine.length){
+    const y=String(new Date().getFullYear());let pend=0,pendN=0,paid=0,todo=0;
+    for(const r of mine){const st=r.claim?.status||'none';const e=rxReimb(r);if(!e)continue;if(st==='sent'||st==='proc'){pend+=e.exp;pendN++}else if(st==='paid'&&(r.claim.paidDate||'').startsWith(y))paid+=+r.claim.paidAmount||0;else if(st==='none'&&e.exp>0)todo++}
+    h+=`<div class="card"><h3>💳 التعويض (${ORGS[me().org]})</h3><div class="g3" style="margin-top:6px;text-align:center"><div><b>${pendN}</b><div class="small">فالانتظار</div></div><div><b>${money(pend)}</b><div class="small">متوقع يرجع</div></div><div><b>${money(paid)}</b><div class="small">رجع ف${y}</div></div></div>${todo?`<div class="alert w" style="margin-bottom:0">📮 ${todo} وصفة ما زال ما تصيفطاتش للتعويض.</div>`:''}</div>`;
+  }
+  const list=[...mine].sort((a,b)=>b.date.localeCompare(a.date));
+  for(const r of list){const act=rxActive(r);const w=warningsFor(r);const st=r.claim?.status||'none';
+    h+=`<div class="card rx" onclick="showRx('${r.id}')">${r.photo?`<img class="thumb" src="${r.photo}" alt="">`:`<div class="ic">📋</div>`}<div class="grow"><b>${fmtDate(r.date)}</b> <span class="pill ${act?'':'grey'}">${act?'جارية':'سالات'}</span>${r.demo?' <span class="pill grey">مثال</span>':''}<div class="small">${r.doctor?esc(r.doctor)+' · ':''}${r.items.length} أدوية · ${money(rxTotal(r))}${me().org!=='none'?` · 💳 ${CLAIM.find(c=>c[0]===st)[1]}`:''}</div>${w.length?`<div class="small" style="color:var(--warn)">⚠️ ${w.length} تنبيه</div>`:''}</div></div>`}
+  $('#view').innerHTML=h;
+}
+
+let curLang=null;
+function showRx(id){
+  const r=S.rx.find(x=>x.id===id);if(!r)return;
+  const l=curLang||S.profile.lang||'dr';
+  const dir=l==='fr'?'ltr':'rtl';
+  const W=warningsFor(r);
+  let h=`<div class="bar"><button class="btn btn-g btn-sm" onclick="closeSheet()">✕</button><b>${fmtDate(r.date)}</b><button class="btn btn-g btn-sm" onclick="editRx('${r.id}')">✏️ تعديل</button></div>`;
+  if(r.demo)h+=`<div class="alert i">هادي وصفة تجريبية. الأثمنة ماشي حقيقية.</div>`;
+  h+=`<div class="card"><div class="row">${r.photo?`<img class="thumb" src="${r.photo}" onclick="viewPhoto('${r.id}')" style="cursor:zoom-in">`:''}<div class="grow"><div><b>${T.dr.dr}:</b> ${esc(r.doctor||'—')}</div><div class="small">${r.items.length} أدوية${rxEnd(r)?' · حتى '+fmtDate(rxEnd(r)):''}</div></div></div></div>`;
+  for(const w of W)h+=`<div class="alert ${w.lvl}">${w.txt}</div>`;
+  h+=`<div class="seg" style="margin-bottom:10px">${Object.entries(LANGS).map(([k,n])=>`<button class="${k===l?'on':''}" onclick="curLang='${k}';showRx('${r.id}')">${n}</button>`).join('')}</div>`;
+  h+=`<div class="card"><div class="row" style="margin-bottom:6px"><h3 class="grow">شرح الوصفة</h3><button class="btn btn-s btn-sm" onclick="speakRx('${r.id}','${l}')">🔊 اقرا الكل</button></div>`;
+  r.items.forEach((it,i)=>{const inf=itemInfo(it);
+    h+=`<div class="med" dir="${dir}"><div class="row">${boxImg(catPhoto(it.catId))}<span class="name grow">${esc(inf.name)}</span><button class="btn btn-g btn-sm" onclick="speakItem('${r.id}',${i},'${l}')">🔊</button></div>${inf.dci?`<div class="small">${esc(inf.dci)}</div>`:''}<div class="expl" dir="${dir}">${esc(explain(it,l))}</div>${inf.use?`<div class="small"><b>${T.why[l]}</b> ${esc(inf.use)}</div>`:''}${it.note?`<div class="small"><b>${T.note[l]}</b> ${esc(it.note)}</div>`:''}${(()=>{const s=stockOf(r,it);return s?`<div class="small" style="color:${s.low?'var(--warn)':'var(--muted)'}">📦 باقي ${s.left} ${s.unit}${s.daysLeft!=null?` · كيكفي ${s.daysLeft} أيام`:''} <button class="btn btn-g btn-sm" style="padding:2px 8px" onclick="addBox('${r.id}','${it.id}');showRx('${r.id}')">+ علبة</button></div>`:''})()}</div>`});
+  h+=`</div>`;
+  h+=`<div class="card"><h3>💰 ثمن الوصفة</h3><table class="tbl"><tr><th>الدواء</th><th class="num">ثمن العلبة</th><th class="num">العلب</th><th class="num">المجموع</th></tr>${r.items.map(it=>{const inf=itemInfo(it);return`<tr><td>${esc(inf.name)}</td><td class="num">${inf.price?money(inf.price):'<span class="small">ما معروفش</span>'}</td><td class="num">${+it.boxes||1}</td><td class="num">${money(itemTotal(it))}</td></tr>`}).join('')}<tr class="total"><td colspan="3">المجموع</td><td class="num">${money(rxTotal(r))}</td></tr></table>${r.items.some(it=>!itemInfo(it).price)?`<div class="small">شي أدوية ما عندهاش ثمن. زيدو فالتعديل ولا فالكتالوج.</div>`:''}</div>`;
+  const rb=rxReimb(r);
+  if(rb){const st=r.claim?.status||'none';
+    h+=`<div class="card"><h3>💳 التعويض — ${esc(rb.org)}</h3><table class="tbl"><tr><td>المبلغ اللي كيتعوض عليه</td><td class="num">${money(rb.base)}</td></tr><tr><td>التعويض المتوقع</td><td class="num" style="color:var(--ok);font-weight:700">${money(rb.exp)}</td></tr><tr class="total"><td>الباقي عليك تقريباً</td><td class="num">${money(rxTotal(r)-rb.exp)}</td></tr></table>
+    <div class="small">تقدير على أساس ${rb.rate}% من PPV${r.items.some(it=>it.ald)?' (والأدوية ALD بالنسبة ديالها)':''}. الدواء الأصلي اللي عندو جنيريك، الصندوق كيحسب ليه على ثمن الجنيريك، والمبلغ الحقيقي كيقدر يكون أقل.</div>
+    <label class="f">حالة ملف التعويض</label><div class="steps">${CLAIM.map(([k,n])=>`<button class="btn ${k===st?'btn-p':'btn-g'}" onclick="setClaim('${r.id}','${k}')">${n}</button>`).join('')}</div>
+    ${st!=='none'?`<div class="g2" style="margin-top:8px"><div><label class="f">تاريخ الإرسال</label><input class="i" type="date" value="${r.claim.sentDate||''}" onchange="S.rx.find(x=>x.id==='${r.id}').claim.sentDate=this.value;save()"></div>${st==='paid'?`<div><label class="f">المبلغ اللي رجع</label><input class="i" inputmode="decimal" value="${r.claim.paidAmount??''}" onchange="S.rx.find(x=>x.id==='${r.id}').claim.paidAmount=+this.value.replace(',','.')||0;save()"></div>`:`<div><label class="f">رقم الملف (اختياري)</label><input class="i" value="${esc(r.claim.ref||'')}" onchange="S.rx.find(x=>x.id==='${r.id}').claim.ref=this.value;save()"></div>`}</div>`:''}</div>`}
+  const alts=r.items.map(it=>({it,o:cheaperOptions(it)})).filter(x=>x.o.length);
+  if(alts.length){const save$=alts.reduce((a,x)=>a+(itemInfo(x.it).price-x.o[0].p)*(+x.it.boxes||1),0);
+    h+=`<div class="card"><h3>💡 بدائل أرخص بنفس المادة والدوزاج</h3><div class="small">من اللائحة الرسمية. ما تبدلش الدواء بوحدك: سول الطبيب ولا الصيدلي واش البديل مناسب ليك.</div>${alts.map(x=>`<div class="med"><b>${esc(itemInfo(x.it).name)}</b> <span class="small">(${money(itemInfo(x.it).price)})</span>${x.o.map(o=>`<div class="small">↳ ${esc(refLabel(o))}${o.l?' · '+esc(o.l):''} — <b style="color:var(--ok)">${money(o.p)}</b></div>`).join('')}</div>`).join('')}<div class="alert i" style="margin-bottom:0">التوفير الممكن فهاد الوصفة: <b>${money(save$)}</b></div></div>`}
+  h+=`<div class="row"><button class="btn btn-p grow" onclick="exportIcs('${r.id}')">📅 زيد للكاليندر</button><button class="btn btn-s grow" onclick="printRx('${r.id}','${l}')">📄 PDF</button></div>`;
+  h+=`<div class="row" style="margin-top:8px"><a class="btn grow" style="background:#25d366;color:#fff;text-decoration:none" href="https://wa.me/?text=${encodeURIComponent(rxShareText(r,l))}" target="_blank" rel="noopener">💬 صيفط فواتساب</a>${navigator.share&&!inFrame?`<button class="btn btn-g grow" onclick="shareRx('${r.id}','${l}')">📤 مشاركة</button>`:''}</div>`;
+  h+=`<div class="row" style="margin-top:8px">${!rxEnd(r)&&!r.closed?`<button class="btn btn-g grow" onclick="closeRx('${r.id}')">✔️ سالات هاد الوصفة</button>`:''}<button class="btn btn-d grow" onclick="delRx('${r.id}')">🗑️ مسح</button></div>`;
+  openSheet(h);
+}
+function rxShareText(r,l){
+  const p=personOf(r);const dt=l==='fr'?new Date(r.date+'T12:00').toLocaleDateString('fr-FR'):fmtDate(r.date);
+  let t=`💊 ${T.rx[l]} ${dt}`+(p?.name?` — ${p.name}`:'')+(r.doctor?`\n${T.dr[l]}: ${r.doctor}`:'')+'\n';
+  for(const it of r.items){const inf=itemInfo(it);t+=`\n▪️ ${inf.name}\n${explain(it,l)}${it.note?`\n${T.note[l]} ${it.note}`:''}\n`}
+  t+=`\n${T.total[l]}: ${rxTotal(r).toFixed(2)} DH`;
+  t+=l==='fr'?'\n\n(Wasfati — ne remplace pas l’avis du médecin ou du pharmacien)':'\n\n(وصفتي — ما كيعوضش رأي الطبيب ولا الصيدلي)';
+  return t;
+}
+async function shareRx(id,l){const r=S.rx.find(x=>x.id===id);try{await navigator.share({title:'وصفتي',text:rxShareText(r,l)})}catch(e){}}
+function speakRx(id,l){speak(rxSpeechText(S.rx.find(x=>x.id===id),l),l)}
+function speakItem(id,i,l){const r=S.rx.find(x=>x.id===id);const it=r.items[i];speak(`${itemInfo(it).name}. ${explain(it,l)}${it.note?' '+it.note:''}`,l)}
+function viewPhoto(id){const r=S.rx.find(x=>x.id===id);openSheet(`<div class="bar"><button class="btn btn-g btn-sm" onclick="showRx('${id}')">→ رجوع</button><b>صورة الوصفة</b><span></span></div><img src="${r.photo}" style="width:100%;border-radius:12px">`)}
+function closeRx(id){const r=S.rx.find(x=>x.id===id);r.closed=true;save();closeSheet();render();toast('تسجلات الوصفة بلي سالات')}
+let pendingDel=null;
+function delRx(id){
+  if(pendingDel!==id){pendingDel=id;toast('ضغط «مسح» مرة أخرى باش تأكد');setTimeout(()=>{if(pendingDel===id)pendingDel=null},3500);return}
+  S.rx=S.rx.filter(x=>x.id!==id);pendingDel=null;save();closeSheet();render();toast('تمسحات الوصفة');
+}
+
+/* ---------- محرر الوصفة ---------- */
+let E=null;
+const newItem=()=>({id:uid(),catId:null,name:'',dci:'',use:'',qty:'1',unit:'cp',times:['08:00'],food:'',days:'',boxes:1,price:'',note:'',perBox:'',reimb:true,ald:false});
+function editRx(id){
+  const r=id?S.rx.find(x=>x.id===id):null;
+  E=r?JSON.parse(JSON.stringify(r)):{id:uid(),personId:S.cur,date:today(),doctor:'',photo:'',items:[newItem()]};
+  E._isNew=!r;renderEditor();
+}
+function renderEditor(){
+  let h=`<div class="bar"><button class="btn btn-g btn-sm" onclick="${E._isNew?'closeSheet()':`showRx('${E.id}')`}">✕</button><b>${E._isNew?'وصفة جديدة':'تعديل الوصفة'}</b><button class="btn btn-p btn-sm" onclick="saveRx()">حفظ</button></div>`;
+  if(S.people.length>1)h+=`<div class="card"><label class="f" style="margin-top:0">الوصفة ديال</label><div class="chips">${S.people.map(p=>`<button class="chip ${p.id===E.personId?'on':''}" onclick="E.personId='${p.id}';renderEditor()">${esc(p.name)}</button>`).join('')}</div></div>`;
+  h+=`<div class="card"><div class="g2"><div><label class="f">التاريخ</label><input class="i" type="date" value="${E.date}" onchange="E.date=this.value"></div><div><label class="f">الطبيب</label><input class="i" value="${esc(E.doctor)}" oninput="E.doctor=this.value" placeholder="د. ..."></div></div>
+  <label class="f">صورة الوصفة (اختياري)</label><div class="row">${E.photo?`<img class="thumb" src="${E.photo}">`:''}<button class="btn btn-g btn-sm" onclick="addRxPhoto()">📷 ${E.photo?'بدّل':'صوّر'} الوصفة</button>${E.photo?`<button class="btn btn-g btn-sm" onclick="E.photo='';renderEditor()">حيّد</button>`:''}</div></div>`;
+  h+=`<datalist id="catList">${S.catalog.map(c=>`<option value="${esc(c.name)}">`).join('')}</datalist>`;
+  E.items.forEach((it,i)=>{
+    h+=`<div class="item-ed"><div class="hd"><div class="row">${boxImg(catPhoto(it.catId),'sm')}<b>💊 دواء ${i+1}</b></div><div class="row"><button class="btn btn-s btn-sm" onclick="scanInto(${i})">📷 باركود</button>${E.items.length>1?`<button class="btn btn-d btn-sm" onclick="E.items.splice(${i},1);renderEditor()">✕</button>`:''}</div></div>
+    <label class="f">اسم الدواء</label><input class="i" list="catList" value="${esc(it.catId?itemInfo(it).name:it.name)}" oninput="suggestNames(this.value)" onchange="setName(${i},this.value)" placeholder="${REF?'كتب 3 حروف وختار من اللائحة':'مثلاً: Doliprane 1000 mg'}" autocomplete="off">
+    <div class="g2"><div><label class="f">المادة الفعالة (DCI)</label><input class="i" value="${esc(itemInfo(it).dci)}" oninput="setField(${i},'dci',this.value)" placeholder="paracétamol" dir="ltr"></div><div><label class="f">علاش (اختياري)</label><input class="i" value="${esc(itemInfo(it).use)}" oninput="setField(${i},'use',this.value)" placeholder="كما قال الطبيب"></div></div>
+    <div class="g2"><div><label class="f">الكمية فكل مرة</label><input class="i" value="${esc(it.qty)}" oninput="E.items[${i}].qty=this.value" inputmode="decimal"></div><div><label class="f">الشكل</label><select class="i" onchange="E.items[${i}].unit=this.value">${Object.entries(UNITS).map(([k,v])=>`<option value="${k}" ${k===it.unit?'selected':''}>${v.dr}</option>`).join('')}</select></div></div>
+    <label class="f">الأوقات</label><div class="chips">${SLOTS.map(s=>`<button class="chip ${it.times.includes(s.t)?'on':''}" onclick="toggleSlot(${i},'${s.t}')">${s.dr} ${s.t}</button>`).join('')}${it.times.filter(t=>!SLOTS.some(s=>s.t===t)).map(t=>`<button class="chip on" onclick="toggleSlot(${i},'${t}')">${t}<span class="x">✕</span></button>`).join('')}<input type="time" class="chip" style="width:auto" onchange="if(this.value)addTime(${i},this.value)"></div>
+    <div class="g3"><div><label class="f">الماكلة</label><select class="i" onchange="E.items[${i}].food=this.value">${Object.entries(FOOD).map(([k,v])=>`<option value="${k}" ${k===(it.food||'')?'selected':''}>${v.dr||'ما يهمش'}</option>`).join('')}</select></div><div><label class="f">شحال من يوم</label><input class="i" value="${esc(it.days)}" oninput="E.items[${i}].days=this.value" inputmode="numeric" placeholder="خاوي = مستمر"></div><div><label class="f">عدد العلب</label><input class="i" value="${esc(it.boxes)}" oninput="E.items[${i}].boxes=this.value" inputmode="numeric"></div></div>
+    <div class="g2"><div><label class="f">ثمن العلبة (درهم)</label><input class="i" value="${esc(it.price??'')}" oninput="E.items[${i}].price=this.value" inputmode="decimal" placeholder="${itemInfo(it).price?'من الكتالوج: '+itemInfo(it).price:'PPV'}"></div><div><label class="f">شحال فالعلبة 📦</label><input class="i" value="${esc(it.perBox??'')}" oninput="E.items[${i}].perBox=this.value" inputmode="numeric" placeholder="مثلاً 30 قرص"></div></div>
+    <div class="row"><label class="ck"><input type="checkbox" ${it.reimb!==false?'checked':''} onchange="E.items[${i}].reimb=this.checked">💳 كيتعوض</label><label class="ck"><input type="checkbox" ${it.ald?'checked':''} onchange="E.items[${i}].ald=this.checked">مرض مزمن (ALD)</label></div>
+    <label class="f">ملاحظة الطبيب</label><input class="i" value="${esc(it.note)}" oninput="E.items[${i}].note=this.value" placeholder="مثلاً: ما تسوقش من بعدو"></div>`;
+  });
+  h+=`<button class="btn btn-s" style="width:100%" onclick="E.items.push(newItem());renderEditor()">+ زيد دواء آخر</button>`;
+  h+=`<div class="alert i" style="margin-top:10px">✍️ كتب الجرعة كيفما هي فالوصفة بالضبط. التطبيق ما كيبدلش الجرعة.</div>`;
+  openSheet(h);
+}
+function suggestNames(v){
+  const q=norm(v);const dl=$('#catList');if(!dl)return;
+  const own=S.catalog.filter(c=>!q||norm(c.name+' '+c.dci).includes(q)).slice(0,10).map(c=>c.name);
+  const ref=q.length>=3?refSearch(v,20).map(refLabel):[];
+  dl.innerHTML=[...new Set([...own,...ref])].map(n=>`<option value="${esc(n)}">`).join('');
+}
+function setName(i,v){const it=E.items[i];let c=S.catalog.find(c=>norm(c.name)===norm(v));
+  if(!c&&REF){const r=refIdx.byName.get(norm(v));if(r)c=catFromRef(r)}if(c){it.catId=c.id;it.name=c.name;it.dci=c.dci;it.use=c.use;if(it.price===''||it.price==null)it.price=''}else{it.catId=null;it.name=v}renderEditor()}
+function setField(i,k,v){const it=E.items[i];if(it.catId){const c=catFind(it.catId);if(c){c[k]=v}}it[k]=v}
+function toggleSlot(i,t){const a=E.items[i].times;const k=a.indexOf(t);if(k>=0)a.splice(k,1);else a.push(t);a.sort();renderEditor()}
+function addTime(i,t){const a=E.items[i].times;if(!a.includes(t))a.push(t);a.sort();renderEditor()}
+async function addRxPhoto(){const f=await pickFile(true);if(!f)return;try{E.photo=await compress(f);renderEditor()}catch(e){toast('ما قدرتش نقرا الصورة')}}
+async function scanInto(i){
+  const code=await scanBarcode();if(!code)return;
+  let c=S.catalog.find(c=>c.barcode===code);
+  if(!c&&REF&&refIdx.byBc.get(code))c=catFromRef(refIdx.byBc.get(code));
+  const it=E.items[i];
+  if(c){attachPhoto(c);it.catId=c.id;it.name=c.name;it.dci=c.dci;it.use=c.use;toast('✅ '+c.name);renderEditor()}
+  else{openCatForm(null,{barcode:code,photo:lastScanPhoto||''},nc=>{it.catId=nc.id;it.name=nc.name;it.dci=nc.dci;it.use=nc.use;renderEditor()});toast('دواء جديد — كمل المعلومات ديالو مرة وحدة',3200)}
+}
+function saveRx(){
+  E.items=E.items.filter(it=>(it.catId||it.name.trim()));
+  if(!E.items.length){toast('زيد على الأقل دواء واحد');E.items=[newItem()];renderEditor();return}
+  if(E.items.some(it=>!it.times.length)){toast('كل دواء خاصو وقت واحد على الأقل');return}
+  for(const it of E.items){ // زيد الدواء للكتالوج إلا ما كانش
+    if(!it.catId&&it.name.trim()){const c={id:uid(),name:it.name.trim(),dci:it.dci||'',use:it.use||'',price:+it.price||0,barcode:'',form:it.unit};S.catalog.push(c);it.catId=c.id}
+    else if(it.catId&&+it.price){const c=catFind(it.catId);if(c&&!c.price)c.price=+it.price}
+  }
+  const isNew=E._isNew;delete E._isNew;if(E.personId&&E.personId!==S.cur){S.cur=E.personId;renderWho()}
+  const k=S.rx.findIndex(x=>x.id===E.id);if(k>=0)S.rx[k]=E;else S.rx.push(E);
+  save();const id=E.id;E=null;render();showRx(id);toast(isNew?'✅ تزادت الوصفة':'✅ تحفظ التعديل');
+}
+
+/* ---------- الكاليندر (.ics) ---------- */
+function exportIcs(id){
+  const r=S.rx.find(x=>x.id===id);const L=[];
+  const stamp=new Date().toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  L.push('BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Wasfati//AR','CALSCALE:GREGORIAN','METHOD:PUBLISH');
+  for(const it of r.items){const inf=itemInfo(it);
+    for(const t of it.times){
+      const dt=r.date.replace(/-/g,'')+'T'+t.replace(':','')+'00';
+      const days=+it.days||30;
+      const desc=explain(it,'dr')+(it.note?' — '+it.note:'');
+      L.push('BEGIN:VEVENT',`UID:${r.id}-${it.id}-${t.replace(':','')}@wasfati`,`DTSTAMP:${stamp}`,`DTSTART:${dt}`,`DURATION:PT10M`,`RRULE:FREQ=DAILY;COUNT=${days}`,`SUMMARY:💊 ${icsEsc(inf.name)} — ${icsEsc((it.qty||1)+' '+UNITS[it.unit||'cp'].dr)}`,`DESCRIPTION:${icsEsc(desc)}`,'BEGIN:VALARM','ACTION:DISPLAY','TRIGGER:PT0M',`DESCRIPTION:${icsEsc(inf.name)}`,'END:VALARM','END:VEVENT');
+    }}
+  L.push('END:VCALENDAR');
+  download(`wasfati-${r.date}.ics`,L.join('\r\n'),'text/calendar');
+  toast(inFrame?'فالمعاينة التحميل ممنوع — جربها من التطبيق المسطب':'📅 حل الملف وزيدو للكاليندر ديال التليفون',3800);
+}
+const icsEsc=s=>String(s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
+function download(name,content,type){
+  try{const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}catch(e){toast('التحميل ما خدمش')}
+}
+
+/* ---------- PDF (طباعة) ---------- */
+function printRx(id,l){
+  const r=S.rx.find(x=>x.id===id);const dir=l==='fr'?'ltr':'rtl';
+  const dateTxt=l==='fr'?new Date(r.date+'T12:00').toLocaleDateString('fr-FR'):fmtDate(r.date);
+  $('#print').innerHTML=`<div dir="${dir}" style="text-align:${l==='fr'?'left':'right'}"><h1>💊 ${T.rx[l]} ${dateTxt}</h1><div>${T.dr[l]}: ${esc(r.doctor||'—')}${personOf(r).name?` · ${l==='fr'?'Patient':'المريض'}: ${esc(personOf(r).name)}`:''}</div>
+  ${r.items.map(it=>{const inf=itemInfo(it);const ph=catPhoto(it.catId);return`<div class="med">${ph?`<img src="${ph}" style="width:56px;height:56px;object-fit:cover;border-radius:6px;float:${l==='fr'?'right':'left'};margin:0 6px">`:''}<b>${esc(inf.name)}</b>${inf.dci?` <small>(${esc(inf.dci)})</small>`:''}<div>${esc(explain(it,l))}</div>${inf.use?`<div><small>${T.why[l]} ${esc(inf.use)}</small></div>`:''}${it.note?`<div><small>${T.note[l]} ${esc(it.note)}</small></div>`:''}</div>`}).join('')}
+  <table><tr><th>${T.med[l]}</th><th>${T.price[l]}</th><th>${T.boxes[l]}</th><th>${T.total[l]}</th></tr>${r.items.map(it=>{const inf=itemInfo(it);return`<tr><td>${esc(inf.name)}</td><td>${inf.price?inf.price.toFixed(2):'—'}</td><td>${+it.boxes||1}</td><td>${itemTotal(it).toFixed(2)}</td></tr>`}).join('')}<tr><td colspan="3"><b>${T.total[l]}</b></td><td><b>${rxTotal(r).toFixed(2)} DH</b></td></tr></table>
+  ${r.photo?`<div style="margin-top:12px"><img src="${r.photo}" style="max-width:100%;max-height:420px"></div>`:''}
+  <p style="margin-top:12px;font-size:11px">${l==='fr'?'Document généré par Wasfati à partir de l’ordonnance saisie. Il ne remplace pas l’avis du médecin ou du pharmacien.':'وثيقة من تطبيق وصفتي، مأخوذة من الوصفة كما تدخلات. ما كتعوضش رأي الطبيب ولا الصيدلي.'}</p></div>`;
+  try{window.print()}catch(e){}
+  if(inFrame)toast('فالمعاينة الطباعة ممنوعة — من التطبيق المسطب اختار «Enregistrer en PDF»',4000);
+}
+
+/* ================= الأدوية: السجل + الكتالوج ================= */
+let medSeg='hist';
+function vMeds(){
+  let h=`<div class="seg" style="margin-bottom:10px"><button class="${medSeg==='hist'?'on':''}" onclick="medSeg='hist';vMeds()">📊 السجل</button><button class="${medSeg==='cat'?'on':''}" onclick="medSeg='cat';vMeds()">🗂️ ديالي</button><button class="${medSeg==='home'?'on':''}" onclick="medSeg='home';vMeds()">🏠 الدار</button><button class="${medSeg==='ref'?'on':''}" onclick="medSeg='ref';vMeds()">📚 اللائحة</button></div>`;
+  if(medSeg==='home'){
+    const arr=[...S.home].sort((a,b)=>(a.expiry||'0').localeCompare(b.expiry||'0'));
+    const bad=arr.filter(x=>expiryState(x.expiry).k==='x').length,soon=arr.filter(x=>expiryState(x.expiry).k==='soon').length;
+    h+=`<div class="card"><div class="row"><h3 class="grow">🏠 صيدلية الدار</h3><span class="pill">${arr.length}</span></div><div class="small">الأدوية اللي فالدار وتاريخ الصلاحية ديالها. التطبيق كينبهك 45 يوم قبل ما يفوت التاريخ.</div>
+    <div class="row" style="margin-top:10px"><button class="btn btn-p grow" onclick="homeScan()">📷 سكاني علبة</button><button class="btn btn-s grow" onclick="homeForm()">+ زيد بيدك</button></div></div>`;
+    for(const t of recallHitsHome())h+=`<div class="alert d">${t}</div>`;
+    if(bad||soon)h+=`<div class="alert w">${bad?`❌ ${bad} فات التاريخ ديالهم — ما تستعملهمش، ورجعهم للصيدلية باش يتخلصو منهم مزيان. `:''}${soon?`⏳ ${soon} قريب يفوتو.`:''}</div>`;
+    h+=`<div class="card">${arr.length?arr.map(x=>{const c=x.catId?catFind(x.catId):null;const st=expiryState(x.expiry);return`<div class="med" style="cursor:pointer" onclick="homeForm('${x.id}')"><div class="row">${boxImg(c?.photo,'sm')}<b class="grow">${esc(c?.name||x.name)}</b><span class="badge ${st.c}">${st.t}</span></div><div class="small">📅 ${fmtMonth(x.expiry)}${x.lot?' · lot '+esc(x.lot):''}${x.note?' · '+esc(x.note):''}</div></div>`}).join(''):'<div class="empty">ما زال ما زدتي حتى دواء.</div>'}</div>`;
+    $('#view').innerHTML=h;return;
+  }
+  if(medSeg==='ref'){
+    h+=`<div class="card"><div class="row"><h3 class="grow">📚 لائحة الأدوية</h3>${REF?`<span class="pill">${REF.rows.length.toLocaleString('fr')} دواء</span>`:''}</div>`;
+    h+=REF?`<div class="small">المصدر: ${esc(REF.meta.source)} · تحدثات ${fmtDate(REF.meta.date)}</div>`:`<div class="small">ما زال ما دخلتي حتى لائحة. ملي تدخلها، السكان ديال الباركود والبحث بالاسم كيعمرو الاسم والمادة الفعالة والثمن بوحدهم، والتطبيق كيوريك البدائل الأرخص.</div>`;
+    h+=`<div class="row" style="margin-top:10px"><button class="btn btn-p grow" onclick="importRefFile()">⬆️ دخل ملف (Excel / CSV)</button><button class="btn btn-s grow" onclick="fetchRefFromApp()">🔄 حدّث من التطبيق</button></div>${REF?`<button class="btn btn-g btn-sm" style="margin-top:8px" onclick="exportRef()">⬇️ صدّر medicaments.json</button>`:''}</div>`;
+    if(REF)h+=`<input class="i" placeholder="🔎 الاسم، المادة الفعالة ولا المختبر…" oninput="refQ=this.value;renderRefList()" value="${esc(refQ)}" style="margin-bottom:10px"><div id="refListBox"></div>`;
+    h+=`<div class="card"><div class="row"><h3 class="grow">🚨 الأدوية المسحوبة من السوق</h3><span class="pill">${S.recalls.length}</span></div><div class="small">ملي AMMPS كتعلن على سحب شي دواء ولا شي حصة (lot)، سجلو هنا ولا حدّث من التطبيق. التطبيق كيقارنو مع الوصفات وصيدلية الدار ديال كل العائلة.</div>
+    ${S.recalls.map((x,i)=>`<div class="med"><div class="row"><b class="grow">${esc(x.name)}${x.lot?` · lot ${esc(x.lot)}`:''}</b><button class="btn btn-d btn-sm" onclick="S.recalls.splice(${i},1);save();vMeds()">✕</button></div><div class="small">${x.date?fmtDate(x.date)+' · ':''}${esc(x.note||'')}${x.src?' — '+esc(x.src):''}</div></div>`).join('')}
+    <div class="g2" style="margin-top:8px"><input class="i" id="rcN" placeholder="اسم الدواء"><input class="i" id="rcL" placeholder="رقم الحصة (lot) — اختياري" dir="ltr"></div><input class="i" id="rcB" style="margin-top:8px" placeholder="الباركود — اختياري" inputmode="numeric" dir="ltr"><input class="i" id="rcT" style="margin-top:8px" placeholder="السبب / شنو خاص يدير المريض"><input class="i" id="rcS" style="margin-top:8px" placeholder="المصدر (بلاغ AMMPS بتاريخ…)">
+    <div class="row" style="margin-top:8px"><button class="btn btn-s grow" onclick="addRecall()">+ سجل السحب</button>${S.recalls.length?`<button class="btn btn-g" onclick="download('rappels.json',JSON.stringify({date:today(),recalls:S.recalls}),'application/json')">⬇️ rappels.json</button>`:''}</div></div>`;
+    h+=`<div class="alert i">📥 <b>منين تجيب اللائحة؟</b> اللائحة الرسمية ديال الأدوية والأثمنة (PPV) كتنشرها وزارة الصحة والوكالة المغربية للأدوية (AMMPS) فـ <a href="https://www.ammps.gov.ma" target="_blank" rel="noopener">ammps.gov.ma</a> وفالجريدة الرسمية. التطبيق كيتعرف بوحدو على الأعمدة: الاسم، DCI، الدوزاج، الشكل، PPV، الباركود، المختبر.<br>💡 دخلها مرة وحدة، صدّرها كـ <b>medicaments.json</b> وحطها فـ GitHub جنب index.html. هكا كل اللي مسطب التطبيق يحدّث بضغطة وحدة.</div>`;
+    $('#view').innerHTML=h;if(REF)renderRefList();return;
+  }
+  if(medSeg==='hist'){
+    const map={};
+    for(const r of myRx())for(const it of r.items){const inf=itemInfo(it);const k=it.catId||norm(inf.name);
+      const m=map[k]||(map[k]={name:inf.name,dci:inf.dci,first:r.date,last:r.date,n:0,active:false,taken:0,id:it.id});
+      m.n++;if(r.date<m.first)m.first=r.date;const end=+it.days?addDays(r.date,+it.days-1):(r.closed?r.date:today());if(end>m.last)m.last=end;if(itemActiveOn(r,it,today()))m.active=true;
+      m.taken+=Object.keys(S.taken).filter(x=>x.includes('|'+it.id+'|')).length}
+    const arr=Object.values(map).sort((a,b)=>b.last.localeCompare(a.last));
+    h+=`<div class="card"><div class="row"><h3 class="grow">الأدوية اللي استعملت</h3><span class="pill">${arr.length}</span></div>`;
+    if(!arr.length)h+=`<div class="empty">السجل كيتعمر بوحدو من الوصفات.</div>`;
+    for(const m of arr)h+=`<div class="med"><div class="row"><b class="grow">${esc(m.name)}</b><span class="pill ${m.active?'':'grey'}">${m.active?'كيتاخد دابا':'سالا'}</span></div><div class="small">${m.dci?esc(m.dci)+' · ':''}من ${fmtDate(m.first)} حتى ${fmtDate(m.last)} · ${m.n} وصفة · ${m.taken} جرعة مسجلة</div></div>`;
+    h+=`</div>`;
+  }else{
+    h+=`<div class="row" style="margin-bottom:10px"><button class="btn btn-p grow" onclick="scanToCatalog()">📷 سكاني علبة</button><button class="btn btn-s grow" onclick="openCatForm()">+ زيد بيدك</button><button class="btn btn-g" onclick="importCsv()">⬆️ CSV</button></div>`;
+    h+=`<input class="i" placeholder="🔎 قلب على دواء…" oninput="catQ=this.value;renderCatList()" value="${esc(catQ)}" style="margin-bottom:10px"><div id="catListBox"></div>`;
+    h+=`<div class="alert i">💡 الأثمنة كيحددها وزارة الصحة وكتبدل بزاف ديال المرات. كتب الثمن (PPV) اللي مطبوع على العلبة، ولا دخل لائحة الأثمنة كاملة بملف CSV (الأعمدة: name;dci;price;barcode).</div>`;
+  }
+  $('#view').innerHTML=h;if(medSeg==='cat')renderCatList();
+}
+let catQ='',refQ='';
+function renderRefList(){
+  const arr=refQ.trim()?refSearch(refQ,60):[];
+  $('#refListBox').innerHTML=refQ.trim()?`<div class="card">${arr.length?arr.map((r,i)=>`<div class="med"><div class="row"><b class="grow">${esc(refLabel(r))}</b><span>${r.p?money(r.p):''}</span></div><div class="small">${esc(r.d||'—')}${r.l?' · '+esc(r.l):''}${r.b?' · 🏷️ '+r.b:''}</div><button class="btn btn-s btn-sm" style="margin-top:4px" onclick="addRefToCat(${REF.rows.indexOf(r)})">+ زيد لأدويتي</button></div>`).join(''):'<div class="empty">ما لقيت والو.</div>'}</div>`:'';
+}
+function addRecall(){
+  const name=$('#rcN').value.trim();if(!name){toast('كتب اسم الدواء');return}
+  S.recalls.push({id:uid(),name,lot:$('#rcL').value.trim(),barcode:$('#rcB').value.replace(/\D/g,''),note:$('#rcT').value.trim(),src:$('#rcS').value.trim(),date:today()});save();vMeds();
+  const n=S.rx.filter(rxActive).flatMap(recallHitsRx).length+recallHitsHome().length;toast(n?`🚨 هاد السحب كيمس ${n} دواء عندكم`:'✅ تسجل — ما كاين حتى دواء معني عندكم',3500);
+}
+async function homeScan(){const code=await scanBarcode();if(!code)return;let c=S.catalog.find(c=>c.barcode===code);if(!c&&REF&&refIdx.byBc.get(code))c=catFromRef(refIdx.byBc.get(code));if(c)attachPhoto(c);window._homePhoto=c?'':(lastScanPhoto||'');homeForm(null,c?{catId:c.id,name:c.name}:{name:'',code})}
+function homeForm(id,preset={}){
+  const x=id?S.home.find(h=>h.id===id):{id:uid(),catId:null,name:'',expiry:'',lot:'',note:'',...preset};
+  const c=x.catId?catFind(x.catId):null;
+  openSheet(`<div class="bar"><button class="btn btn-g btn-sm" onclick="closeSheet()">✕</button><b>${id?'تعديل':'دواء فالدار'}</b><button class="btn btn-p btn-sm" onclick="homeSave('${x.id}')">حفظ</button></div><div class="card">
+  <label class="f">الدواء</label><input class="i" id="h_n" list="hList" value="${esc(c?.name||x.name)}" oninput="homeSuggest(this.value)" autocomplete="off"><datalist id="hList"></datalist>
+  <div class="g2"><div><label class="f">كيسالي ف (الشهر)</label><input class="i" id="h_e" type="month" value="${esc(x.expiry)}"></div><div><label class="f">رقم الحصة (lot)</label><input class="i" id="h_l" value="${esc(x.lot)}" dir="ltr" placeholder="مكتوب على العلبة"></div></div>
+  <label class="f">ملاحظة</label><input class="i" id="h_t" value="${esc(x.note)}" placeholder="مثلاً: فالتلاجة، محلول من…">
+  <div class="small" style="margin-top:8px">💡 تاريخ الصلاحية (EXP) ورقم الحصة (LOT) مطبوعين على جنب العلبة.</div>
+  ${id?`<button class="btn btn-d" style="margin-top:12px" onclick="S.home=S.home.filter(h=>h.id!=='${id}');save();closeSheet();render()">🗑️ مسح (رميتو / سالا)</button>`:''}</div>`);
+  window._homeCode=preset.code||'';
+}
+function homeSuggest(v){const q=norm(v);const own=S.catalog.filter(c=>!q||norm(c.name).includes(q)).slice(0,10).map(c=>c.name);const ref=q.length>=3?refSearch(v,15).map(refLabel):[];$('#hList').innerHTML=[...new Set([...own,...ref])].map(n=>`<option value="${esc(n)}">`).join('')}
+function homeSave(id){
+  const name=$('#h_n').value.trim();if(!name){toast('كتب اسم الدواء');return}
+  let c=S.catalog.find(c=>norm(c.name)===norm(name));if(!c&&REF){const r=refIdx.byName.get(norm(name));if(r)c=catFromRef(r)}
+  if(!c){c={id:uid(),name,dci:'',use:'',price:0,barcode:window._homeCode||'',photo:window._homePhoto||''};S.catalog.push(c)}
+  else{if(window._homeCode&&!c.barcode)c.barcode=window._homeCode;if(window._homePhoto&&!c.photo)c.photo=window._homePhoto}
+  window._homePhoto='';
+  const x={id,catId:c.id,name,expiry:$('#h_e').value,lot:$('#h_l').value.trim(),note:$('#h_t').value.trim()};
+  const k=S.home.findIndex(h=>h.id===id);if(k>=0)S.home[k]=x;else S.home.push(x);save();closeSheet();render();
+  const st=expiryState(x.expiry);if(st.k==='x')toast('❌ هاد الدواء فات التاريخ ديالو',3500);
+}
+function addRefToCat(i){const c=catFromRef(REF.rows[i]);toast('✅ '+c.name)}
+function renderCatList(){
+  const q=norm(catQ);const arr=S.catalog.filter(c=>!q||norm(c.name+' '+c.dci+' '+c.barcode).includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+  $('#catListBox').innerHTML=`<div class="card">${arr.length?arr.slice(0,200).map(c=>`<div class="med" style="cursor:pointer" onclick="openCatForm('${c.id}')"><div class="row">${boxImg(c.photo,'sm')||'<div class="bx sm none">💊</div>'}<b class="grow">${esc(c.name)}</b><span>${c.price?money(c.price):'<span class="small">بلا ثمن</span>'}</span></div><div class="small">${esc(c.dci||'—')}${c.barcode?' · 🏷️ '+esc(c.barcode):''}</div></div>`).join(''):'<div class="empty">الكتالوج خاوي.</div>'}${arr.length>200?`<div class="small">كيبانو 200 الأوائل — قلب باش تلقى الباقي.</div>`:''}</div>`;
+}
+async function scanToCatalog(){const code=await scanBarcode();if(!code)return;let c=S.catalog.find(c=>c.barcode===code);
+  if(!c&&REF&&refIdx.byBc.get(code)){c=catFromRef(refIdx.byBc.get(code));render()}
+  if(c){attachPhoto(c);openCatForm(c.id);toast('✅ لقيتو: '+c.name)}else{openCatForm(null,{barcode:code,photo:lastScanPhoto||''});toast(REF?'ما كاينش فاللائحة — كمل المعلومات بيدك':'دواء جديد — كمل المعلومات',3500)}}
+function openCatForm(id,preset={},cb){
+  const c=id?catFind(id):{id:uid(),name:'',dci:'',use:'',price:'',barcode:'',...preset};
+  const back=cb?`renderEditor()`:`closeSheet()`;
+  window._catCb=cb;window._catDraft={...c};window._catNew=!id;
+  openSheet(`<div class="bar"><button class="btn btn-g btn-sm" onclick="${back}">✕</button><b>${id?'تعديل الدواء':'دواء جديد'}</b><button class="btn btn-p btn-sm" onclick="saveCat()">حفظ</button></div>
+  <div class="card"><div class="row"><span id="c_ph">${c.photo?`<img class="bx lg" src="${c.photo}">`:`<div class="bx lg none">📦</div>`}</span><div class="grow"><b>صورة العلبة</b><div class="small">كتعاون المريض يعرف الدوا بالعين.</div><div class="row" style="margin-top:6px"><button class="btn btn-s btn-sm" onclick="catPhotoTake()">📷 ${c.photo?'بدّل':'صوّر'} العلبة</button>${c.photo?`<button class="btn btn-g btn-sm" onclick="window._catDraft.photo='';$('#c_ph').innerHTML='<div class=&quot;bx lg none&quot;>📦</div>'">حيّد</button>`:''}</div></div></div>
+  <label class="f">الاسم التجاري + الجرعة</label><input class="i" id="c_name" value="${esc(c.name)}" placeholder="Doliprane 1000 mg cp">
+  <label class="f">المادة الفعالة (DCI)</label><input class="i" id="c_dci" value="${esc(c.dci)}" dir="ltr" placeholder="paracétamol">
+  <label class="f">الاستعمال (كما قال الطبيب ولا الصيدلي)</label><input class="i" id="c_use" value="${esc(c.use)}">
+  <div class="g2"><div><label class="f">ثمن العلبة PPV (درهم)</label><input class="i" id="c_price" value="${esc(c.price)}" inputmode="decimal"></div><div><label class="f">الباركود</label><div class="row" style="flex-wrap:nowrap"><input class="i" id="c_bc" value="${esc(c.barcode)}" inputmode="numeric" dir="ltr"><button class="btn btn-g btn-sm" onclick="scanBarcode().then(v=>{if(v){$('#c_bc').value=v;if(lastScanPhoto&&!window._catDraft.photo){window._catDraft.photo=lastScanPhoto;$('#c_ph').innerHTML=boxImg(lastScanPhoto,'lg')}}})">📷</button></div></div></div>
+  ${id&&!cb?`<button class="btn btn-d" style="margin-top:12px" onclick="delCat('${id}')">🗑️ مسح من الكتالوج</button>`:''}</div>`);
+}
+async function catPhotoTake(){const f=await pickFile(true);if(!f)return;try{window._catDraft.photo=await compress(f,520,.72);$('#c_ph').innerHTML=boxImg(window._catDraft.photo,'lg')}catch(e){toast('ما قدرتش نقرا الصورة')}}
+function saveCat(){
+  const c=window._catDraft;c.name=$('#c_name').value.trim();c.dci=$('#c_dci').value.trim();c.use=$('#c_use').value.trim();c.price=+String($('#c_price').value).replace(',','.')||0;c.barcode=$('#c_bc').value.trim();
+  if(!c.name){toast('كتب اسم الدواء');return}
+  if(c.barcode){const dup=S.catalog.find(x=>x.barcode===c.barcode&&x.id!==c.id);if(dup){toast('هاد الباركود مسجل لـ '+dup.name);return}}
+  const k=S.catalog.findIndex(x=>x.id===c.id);if(k>=0)S.catalog[k]=c;else S.catalog.push(c);save();
+  const cb=window._catCb;window._catCb=null;
+  if(cb)cb(c);else{closeSheet();render()}
+  toast('✅ تحفظ الدواء');
+}
+function delCat(id){if(S.rx.some(r=>r.items.some(it=>it.catId===id))){toast('هاد الدواء مستعمل فوصفة، ما يمكنش يتمسح');return}S.catalog=S.catalog.filter(c=>c.id!==id);save();closeSheet();render()}
+async function importCsv(){
+  const f=await pickFile(false,'.csv,text/csv,text/plain');if(!f)return;
+  const txt=await f.text();const lines=txt.split(/\r?\n/).filter(x=>x.trim());if(!lines.length)return;
+  const sep=(lines[0].match(/;/g)||[]).length>=(lines[0].match(/,/g)||[]).length?';':',';
+  const parse=l=>{const out=[];let cur='',q=false;for(const ch of l){if(ch==='"'){q=!q;continue}if(ch===sep&&!q){out.push(cur);cur='';continue}cur+=ch}out.push(cur);return out.map(s=>s.trim())};
+  let head=parse(lines[0]).map(h=>norm(h));
+  const idx=k=>head.findIndex(h=>k.some(x=>h.includes(x)));
+  let iN=idx(['name','nom','designation','specialite']),iD=idx(['dci','substance','principe']),iP=idx(['price','prix','ppv']),iB=idx(['barcode','code','ean','gtin']);
+  let start=1;if(iN<0){iN=0;iD=1;iP=2;iB=3;start=0}
+  let add=0,upd=0;
+  for(const l of lines.slice(start)){const c=parse(l);const name=c[iN];if(!name)continue;
+    const price=+String(c[iP]||'').replace(/\s/g,'').replace(',','.')||0, bc=(c[iB]||'').replace(/\D/g,''), dci=c[iD]||'';
+    const ex=S.catalog.find(x=>(bc&&x.barcode===bc)||norm(x.name)===norm(name));
+    if(ex){if(price)ex.price=price;if(dci&&!ex.dci)ex.dci=dci;if(bc&&!ex.barcode)ex.barcode=bc;upd++}
+    else{S.catalog.push({id:uid(),name,dci,use:'',price,barcode:bc});add++}}
+  save();render();toast(`✅ تزادو ${add} وتحدثو ${upd}`,3500);
+}
+
+/* ================= الصيدليات ================= */
+function vPh(){
+  let h=`<div class="card"><h2 style="margin-top:0">🏥 البحث عن صيدلية</h2>
+  <div class="row"><a class="btn btn-p grow" href="https://www.google.com/maps/search/pharmacie/" target="_blank" rel="noopener">📍 الصيدليات القريبة مني</a></div>
+  <label class="f">صيدلية الحراسة فمدينة</label><div class="row" style="flex-wrap:nowrap"><input class="i" id="phCity" placeholder="مثلاً: الرباط" value="${esc(S.profile.city||'')}"><a class="btn btn-s" id="gardeLink" href="#" target="_blank" rel="noopener" onclick="return gardeGo(this)">قلب</a></div>
+  <div class="small" style="margin-top:6px">الخريطة كتحل فـ Google Maps. صيدليات الحراسة كتبدل كل نهار، ديما عيّط قبل ما تمشي.</div></div>`;
+  h+=`<div class="card"><div class="row"><h3 class="grow">الصيدليات ديالي</h3><button class="btn btn-s btn-sm" onclick="phForm()">+ زيد</button></div>`;
+  if(!S.pharmacies.length)h+=`<div class="empty">سجل الصيدليات اللي كتعامل معاهم باش تلقاهم بسرعة.</div>`;
+  for(const p of S.pharmacies)h+=`<div class="med"><div class="row"><b class="grow">${esc(p.name)}</b><button class="btn btn-g btn-sm" onclick="phForm('${p.id}')">✏️</button></div><div class="small">${esc(p.addr||'')}</div>${p.phone?`<div class="row" style="margin-top:4px"><a class="btn btn-s btn-sm" href="tel:${esc(p.phone.replace(/\s/g,''))}">📞 ${esc(p.phone)}</a><a class="btn btn-g btn-sm" href="https://www.google.com/maps/search/${encodeURIComponent(p.name+' '+(p.addr||''))}" target="_blank" rel="noopener">🗺️ الخريطة</a></div>`:''}</div>`;
+  h+=`</div>`;
+  $('#view').innerHTML=h;
+}
+function gardeGo(a){const c=$('#phCity').value.trim();if(c){S.profile.city=c;save()}a.href='https://www.google.com/search?q='+encodeURIComponent('pharmacie de garde '+(c||'')+' aujourd\'hui');return true}
+function phForm(id){
+  const p=id?S.pharmacies.find(x=>x.id===id):{id:uid(),name:'',phone:'',addr:''};
+  openSheet(`<div class="bar"><button class="btn btn-g btn-sm" onclick="closeSheet()">✕</button><b>${id?'تعديل':'صيدلية جديدة'}</b><button class="btn btn-p btn-sm" onclick="phSave('${p.id}')">حفظ</button></div><div class="card"><label class="f">الاسم</label><input class="i" id="p_n" value="${esc(p.name)}"><label class="f">الهاتف</label><input class="i" id="p_p" value="${esc(p.phone)}" inputmode="tel" dir="ltr"><label class="f">العنوان / الحي</label><input class="i" id="p_a" value="${esc(p.addr)}">${id?`<button class="btn btn-d" style="margin-top:12px" onclick="S.pharmacies=S.pharmacies.filter(x=>x.id!=='${id}');save();closeSheet();render()">🗑️ مسح</button>`:''}</div>`);
+}
+function phSave(id){const n=$('#p_n').value.trim();if(!n){toast('كتب الاسم');return}const p={id,name:n,phone:$('#p_p').value.trim(),addr:$('#p_a').value.trim()};const k=S.pharmacies.findIndex(x=>x.id===id);if(k>=0)S.pharmacies[k]=p;else S.pharmacies.push(p);save();closeSheet();render()}
+
+/* ================= الملف الشخصي ================= */
+function vMe(){
+  const P=S.profile;
+  const M=me();
+  let h=`<div class="card"><div class="row"><h2 class="grow" style="margin:0">👤 ${esc(M.name)}</h2><button class="btn btn-s btn-sm" onclick="personForm('${M.id}')">✏️ الاسم والتغطية</button></div><div class="small">${ORGS[M.org]}${M.org!=='none'?` · ${M.rate}% · ALD ${M.aldRate}%`:''}</div><button class="btn btn-g btn-sm" style="margin-top:8px" onclick="peopleSheet()">👨‍👩‍👧 أفراد العائلة (${S.people.length})</button></div>`;
+  h+=`<div class="card"><h3>⚠️ الحساسية ديال ${esc(M.name)}</h3><div class="small">كتب المادة (مثلاً: pénicilline, amoxicilline, aspirine). التطبيق كينبهك إلا تلقاها فشي دواء.</div><div class="chips" style="margin:8px 0">${(M.allergies||[]).map((a,i)=>`<button class="chip on" onclick="me().allergies.splice(${i},1);save();vMe()">${esc(a)}<span class="x">✕</span></button>`).join('')||'<span class="small">ما كاين حتى حساسية مسجلة.</span>'}</div><div class="row" style="flex-wrap:nowrap"><input class="i" id="alIn" dir="ltr" placeholder="pénicilline"><button class="btn btn-s" onclick="addAllergy()">زيد</button></div></div>`;
+  h+=`<div class="card"><h3>⚙️ الإعدادات</h3><label class="f">لغة الشرح والصوت</label><div class="seg">${Object.entries(LANGS).map(([k,n])=>`<button class="${k===P.lang?'on':''}" onclick="S.profile.lang='${k}';curLang=null;save();vMe()">${n}</button>`).join('')}</div>
+  <button class="btn btn-g btn-sm" style="margin-top:8px" onclick="speak(P_TEST[S.profile.lang],S.profile.lang)">🔊 جرب الصوت</button>
+  <label class="ck" style="margin-top:14px;font-size:16px"><input type="checkbox" ${P.big?'checked':''} onchange="S.profile.big=this.checked;document.body.classList.toggle('big',this.checked);save()">👴 وضع كبار السن: خط وأزرار كبار، وكل دوا كيتقرا ملي تضغط عليه</label></div>`;
+  h+=`<div class="card"><h3>⚡ التفاعلات الدوائية</h3><div class="small">التطبيق ما فيهش قاعدة بيانات طبية مدمجة. كيتنبه غير على: (1) نفس المادة الفعالة فجوج أدوية، (2) التفاعلات اللي سجلتي هنا من عند الطبيب ولا الصيدلي ولا من النشرة (notice).</div>
+  ${S.interactions.map((x,i)=>`<div class="med"><div class="row"><b class="grow">${esc(x.a)} + ${esc(x.b)}</b><button class="btn btn-d btn-sm" onclick="S.interactions.splice(${i},1);save();vMe()">✕</button></div><div class="small">${esc(x.note||'')}${x.src?' — '+esc(x.src):''}</div></div>`).join('')}
+  <div class="g2" style="margin-top:8px"><input class="i" id="ixA" dir="ltr" placeholder="مادة 1"><input class="i" id="ixB" dir="ltr" placeholder="مادة 2"></div><input class="i" id="ixN" style="margin-top:8px" placeholder="شنو قال (مثلاً: خاص 4 سوايع بيناتهم)"><input class="i" id="ixS" style="margin-top:8px" placeholder="المصدر (الصيدلي، الطبيب، النشرة…)"><button class="btn btn-s" style="margin-top:8px;width:100%" onclick="addIx()">+ سجل التفاعل</button></div>`;
+  h+=`<div class="card"><h3>💾 النسخة الاحتياطية</h3><div class="small">المعطيات كاينة غير فهاد التليفون. دير نسخة من وقت لآخر.</div><div class="row" style="margin-top:8px"><button class="btn btn-s grow" onclick="backup()">⬇️ صدّر نسخة</button><button class="btn btn-g grow" onclick="restore()">⬆️ رجّع نسخة</button></div><button class="btn btn-d btn-sm" style="margin-top:10px" onclick="wipe()">مسح كلشي</button></div>`;
+  h+=`<div class="card"><h3>📲 سطّب التطبيق</h3><div class="small"><b>Android (Chrome):</b> القائمة ⋮ ← «Installer l'application» / «Ajouter à l'écran d'accueil».<br><b>iPhone (Safari):</b> زر المشاركة ⬆️ ← «Sur l'écran d'accueil».</div></div>`;
+  $('#view').innerHTML=h;
+}
+/* ---------- 👨‍👩‍👧 أفراد العائلة ---------- */
+function renderWho(){$('#whoBtn').textContent='👤 '+me().name+(S.people.length>1?' ▾':'')}
+function switchPerson(id){S.cur=id;save();renderWho();closeSheet();render();toast('👤 '+me().name)}
+function peopleSheet(){
+  openSheet(`<div class="bar"><button class="btn btn-g btn-sm" onclick="closeSheet()">✕</button><b>أفراد العائلة</b><button class="btn btn-p btn-sm" onclick="personForm()">+ زيد</button></div>
+  <div class="card">${S.people.map(p=>{const n=S.rx.filter(r=>r.personId===p.id&&rxActive(r)).length;return`<div class="med rx" onclick="switchPerson('${p.id}')"><div class="ic">${p.id===S.cur?'✅':'👤'}</div><div class="grow"><b>${esc(p.name)}</b><div class="small">${ORGS[p.org]} · ${n} وصفة جارية</div></div><button class="btn btn-g btn-sm" onclick="event.stopPropagation();personForm('${p.id}')">✏️</button></div>`}).join('')}</div>
+  <div class="small">كل واحد عندو الوصفات والحساسية والتعويض ديالو. الكتالوج، صيدلية الدار واللائحة مشتركين.</div>`);
+}
+function personForm(id){
+  const p=id?S.people.find(x=>x.id===id):newPerson('');
+  openSheet(`<div class="bar"><button class="btn btn-g btn-sm" onclick="peopleSheet()">✕</button><b>${id?'تعديل':'فرد جديد'}</b><button class="btn btn-p btn-sm" onclick="personSave('${p.id}')">حفظ</button></div><div class="card">
+  <label class="f">الاسم</label><input class="i" id="pp_n" value="${esc(p.name)}" placeholder="مثلاً: الوالدة">
+  <label class="f">التغطية الصحية</label><select class="i" id="pp_o">${Object.entries(ORGS).map(([k,v])=>`<option value="${k}" ${k===p.org?'selected':''}>${v}</option>`).join('')}</select>
+  <div class="g2"><div><label class="f">نسبة التعويض العادية %</label><input class="i" id="pp_r" value="${p.rate}" inputmode="numeric"></div><div><label class="f">نسبة ALD %</label><input class="i" id="pp_a" value="${p.aldRate}" inputmode="numeric"></div></div>
+  <div class="small" style="margin-top:6px">عادة 70% للأدوية. الأمراض المزمنة (ALD) كتوصل حتى لـ 100% حسب المرض والصندوق، شوف الورقة ديال الموافقة.</div>
+  ${id&&S.people.length>1?`<button class="btn btn-d" style="margin-top:12px" onclick="personDel('${id}')">🗑️ مسح هاد الفرد والوصفات ديالو</button>`:''}</div>`);
+}
+function personSave(id){
+  const name=$('#pp_n').value.trim();if(!name){toast('كتب الاسم');return}
+  let p=S.people.find(x=>x.id===id);const isNew=!p;if(!p){p=newPerson();p.id=id;S.people.push(p)}
+  p.name=name;p.org=$('#pp_o').value;p.rate=Math.min(100,Math.max(0,+$('#pp_r').value||0));p.aldRate=Math.min(100,Math.max(0,+$('#pp_a').value||0));
+  save();if(isNew)switchPerson(p.id);else{renderWho();peopleSheet();render()}
+}
+let delArm=null;
+function personDel(id){if(delArm!==id){delArm=id;toast('ضغط مرة أخرى باش تأكد المسح');setTimeout(()=>{if(delArm===id)delArm=null},3500);return}
+  S.rx=S.rx.filter(r=>r.personId!==id);S.people=S.people.filter(p=>p.id!==id);if(S.cur===id)S.cur=S.people[0].id;delArm=null;save();renderWho();peopleSheet();render()}
+const P_TEST={dr:'سلام، هادا هو الصوت اللي غادي نقرا بيه الوصفة ديالك.',ar:'مرحباً، هذا هو الصوت الذي سأقرأ به وصفتك.',fr:'Bonjour, voici la voix qui lira votre ordonnance.'};
+function addAllergy(){const v=$('#alIn').value.trim();if(!v)return;(me().allergies=me().allergies||[]).push(v);save();vMe()}
+function addIx(){const a=$('#ixA').value.trim(),b=$('#ixB').value.trim();if(!a||!b){toast('كتب جوج مواد');return}S.interactions.push({a,b,note:$('#ixN').value.trim(),src:$('#ixS').value.trim()});save();vMe()}
+function backup(){const j=JSON.stringify(S);download(`wasfati-${today()}.json`,j,'application/json');if(inFrame){try{navigator.clipboard.writeText(j).then(()=>toast('فالمعاينة التحميل ممنوع — تنسخات النسخة'))}catch(e){}}}
+async function restore(){
+  const f=await pickFile(false,'.json,application/json');if(!f)return;
+  try{const d=JSON.parse(await f.text());if(!d||!Array.isArray(d.rx))throw 0;
+    openSheet(`<div class="bar"><button class="btn btn-g btn-sm" onclick="closeSheet()">✕</button><b>رجّع النسخة؟</b><span></span></div><div class="card">فيها <b>${d.rx.length}</b> وصفات و<b>${(d.catalog||[]).length}</b> دواء فالكتالوج.<div class="alert w">غادي تعوض المعطيات اللي كاينة دابا، ما غاديش تتزاد عليها.</div><button class="btn btn-p" style="width:100%" id="doRestore">نعم، رجّعها</button></div>`);
+    $('#doRestore').onclick=()=>{S=migrate(d);renderWho();save();closeSheet();go('today');toast('✅ رجعات النسخة')};
+  }catch(e){toast('هاد الملف ماشي نسخة ديال وصفتي')}
+}
+let wipeArm=false;
+function wipe(){if(!wipeArm){wipeArm=true;toast('ضغط مرة أخرى باش تمسح كلشي');setTimeout(()=>wipeArm=false,3500);return}S=blank();save();wipeArm=false;renderWho();go('today');toast('تمسح كلشي')}
+
+/* ================= مثال ================= */
+function loadDemo(){
+  const c1={id:uid(),name:'Doliprane 1000 mg',dci:'paracétamol',use:'الحمى والوجع',price:20,barcode:''};
+  const c2={id:uid(),name:'Amoxil 1 g',dci:'amoxicilline',use:'مضاد حيوي',price:60,barcode:''};
+  const c3={id:uid(),name:'Efferalgan 500 mg',dci:'paracétamol',use:'الوجع',price:15,barcode:''};
+  S.catalog.push(c1,c2,c3);
+  const mk=(c,o)=>({...newItem(),catId:c.id,name:c.name,dci:c.dci,use:c.use,price:'',...o});
+  S.rx.push({id:uid(),personId:S.cur,demo:true,date:today(),doctor:'د. مثال',photo:'',items:[
+    mk(c2,{qty:'1',unit:'cp',times:['08:00','20:00'],food:'with',days:'10',boxes:1,perBox:'12',ald:false,note:'كمل الدواء حتى للخر'}),
+    mk(c1,{qty:'1',unit:'cp',times:['08:00','13:00','20:00'],food:'after',days:'5',boxes:1}),
+    mk(c3,{qty:'1',unit:'cp',times:['22:30'],food:'',days:'3',boxes:1}),
+  ]});
+  save();render();toast('تزادت وصفة تجريبية — شوف التنبيه ديال المادة المكررة',3500);
+}
+
+/* ================= النوافذ ================= */
+function openSheet(h){$('#sheet').innerHTML=h;$('#ov').classList.add('show');document.body.style.overflow='hidden';$('#sheet').scrollTop=0}
+function closeSheet(){$('#ov').classList.remove('show');document.body.style.overflow='';curLang=null;if('speechSynthesis' in window)speechSynthesis.cancel()}
+$('#ov').addEventListener('click',e=>{if(e.target.id==='ov')closeSheet()});
+
+/* ================= البداية ================= */
+(async()=>{
+  if(inFrame)$('#frameNote').classList.remove('hide');
+  await DB.open();const d=await DB.get('state');if(d&&d.rx)S=migrate(d);
+  document.body.classList.toggle('big',!!S.profile.big);renderWho();
+  const ref=await DB.get('ref');if(ref&&Array.isArray(ref.rows)){REF=ref;buildRefIdx()}
+  renderTabs();render();
+  if('serviceWorker' in navigator&&!inFrame&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js')}catch(e){}}
+  if(!inFrame&&navigator.onLine)setTimeout(()=>fetchRefFromApp(true),1500);
+})();
+</script>
+</body>
+</html>
