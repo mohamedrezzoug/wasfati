@@ -120,6 +120,7 @@ body.big .next .big{font-size:28px}
 body.big .bx{width:60px;height:60px}
 .lb{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:80;display:none;align-items:center;justify-content:center;padding:20px}
 .lb.show{display:flex}.lb img{max-width:100%;max-height:90vh;border-radius:12px}
+@keyframes scanl{0%,100%{transform:translateY(-60px)}50%{transform:translateY(60px)}}.scanline{animation:scanl 1.8s ease-in-out infinite}
 #print{display:none}
 @media print{
   body *{visibility:hidden}
@@ -195,7 +196,8 @@ function buildRefIdx(){
   refIdx={byBc:new Map(),byName:new Map()};if(!REF)return;
   for(const r of REF.rows){r._s=norm([r.n,r.d,r.dz,r.l].join(' '));if(r.b)refIdx.byBc.set(r.b,r);refIdx.byName.set(norm(refLabel(r)),r)}
 }
-const refLabel=r=>{let s=r.n||'';if(r.dz&&!norm(s).includes(norm(r.dz)))s+=' '+r.dz;if(r.f&&!norm(s).includes(norm(r.f)))s+=' — '+r.f;return s.trim()};
+const refLabel=r=>{let s=r.n||'';if(r.dz&&!norm(s).includes(norm(r.dz)))s+=' '+r.dz;if(r.f&&!norm(s).includes(norm(r.f)))s+=' — '+r.f;if(r.pr&&!norm(s).includes(norm(r.pr)))s+=' ('+r.pr.toLowerCase()+')';return s.trim()};
+const refSold=r=>!r.st||/^commercialis/i.test(r.st.trim());
 function refSearch(q,lim=25){q=norm(q);if(!q||!REF)return[];const parts=q.split(' ');const out=[];for(const r of REF.rows){if(parts.every(p=>r._s.includes(p))){out.push(r);if(out.length>=lim)break}}return out}
 function refFor(c){if(!REF||!c)return null;return (c.barcode&&refIdx.byBc.get(c.barcode))||refIdx.byName.get(norm(c.name))||null}
 function catFromRef(r){
@@ -213,7 +215,8 @@ function cheaperOptions(it){
   const myLabel=me?refLabel(me):inf.name, st=strength(me?.dz||myLabel), fm=formOf(myLabel);
   if(!st)return[]; // بلا دوزاج معروف ما نقارنوش
   const d=norm(inf.dci);
-  return REF.rows.filter(r=>r.p&&r.p<inf.price&&norm(r.d)===d&&strength(r.dz||refLabel(r))===st&&(!fm||!formOf(refLabel(r))||formOf(refLabel(r))===fm)&&r!==me)
+  const pr=me?.pr?norm(me.pr):'';
+  return REF.rows.filter(r=>r.p&&r.p<inf.price&&refSold(r)&&(!pr||!r.pr||norm(r.pr)===pr)&&norm(r.d)===d&&strength(r.dz||refLabel(r))===st&&(!fm||!formOf(refLabel(r))||formOf(refLabel(r))===fm)&&r!==me)
     .sort((a,b)=>a.p-b.p).slice(0,2);
 }
 let sheetjsP=null;
@@ -222,10 +225,12 @@ const COLS={
   n:['nom','designation','specialite','denomination','produit','libelle','name','medicament'],
   d:['dci','substance','principe','composition','molecule'],
   dz:['dosage','concentration'],
-  f:['forme','presentation','conditionnement'],
+  f:['forme'],
+  pr:['presentation','conditionnement'],
+  st:['statut commercialisation','commercialisation'],
   p:['ppv','prix public','prix de vente','price','prix'],
   b:['code barre','codebarre','code barre','ean','gtin','barcode','code_barre','cip'],
-  l:['laboratoire','titulaire','fabricant','labo'],
+  l:['laboratoire','titulaire','fabricant','labo','epi'],
 };
 function detectCols(row){
   const h=row.map(x=>norm(x));const cols={};let score=0;
@@ -251,6 +256,8 @@ function mapRows(aoa){
     if(C.p!=null){const p=num(row[C.p]);if(p)r.p=p}
     if(C.b!=null){const b=String(row[C.b]??'').replace(/\D/g,'');if(b.length>=8)r.b=b.length===14?b.replace(/^0/,''):b}
     if(C.l!=null&&row[C.l])r.l=String(row[C.l]).trim();
+    if(C.pr!=null&&row[C.pr])r.pr=String(row[C.pr]).trim();
+    if(C.st!=null&&row[C.st])r.st=String(row[C.st]).trim();
     out.push(r);
   }
   return {rows:out,cols:Object.keys(C)};
@@ -457,25 +464,60 @@ function showLb(src){$('#lbImg').src=src;$('#lb').classList.add('show')}
 function attachPhoto(c){if(c&&lastScanPhoto&&!c.photo){c.photo=lastScanPhoto;save()}}
 let zxingP=null;
 function loadZXing(){if(window.ZXing)return Promise.resolve();if(!zxingP)zxingP=new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s)});return zxingP}
-async function scanBarcode(){
-  const f=await pickFile(true);if(!f)return null;
+/* ---------- 📷 السكان المباشر بالكاميرا ---------- */
+const BC_FORMATS=['ean_13','ean_8','code_128','data_matrix','qr_code','upc_a','upc_e'];
+async function decodeFile(f){
   lastScanPhoto=null;try{lastScanPhoto=await compress(f,520,.72)}catch(e){}
   toast('كنقرا الباركود…');
-  try{
-    if('BarcodeDetector' in window){
-      const bmp=await createImageBitmap(f);
-      const det=new BarcodeDetector({formats:['ean_13','ean_8','code_128','data_matrix','qr_code','upc_a']});
-      const r=await det.detect(bmp);if(r[0])return cleanCode(r[0].rawValue);
-    }
-  }catch(e){}
-  try{
-    await loadZXing();
-    const url=URL.createObjectURL(f);
-    const hints=new Map();hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
-    const reader=new ZXing.BrowserMultiFormatReader(hints);
-    const r=await reader.decodeFromImageUrl(url);URL.revokeObjectURL(url);
-    return cleanCode(r.getText());
-  }catch(e){toast('ما قدرتش نقرا الباركود. قرّب أكثر، ضوء مزيان، ولا كتبو بيدك',3500);return null}
+  try{if('BarcodeDetector' in window){const bmp=await createImageBitmap(f);const r=await new BarcodeDetector({formats:BC_FORMATS}).detect(bmp);if(r[0])return cleanCode(r[0].rawValue)}}catch(e){}
+  try{await loadZXing();const url=URL.createObjectURL(f);const hints=new Map();hints.set(ZXing.DecodeHintType.TRY_HARDER,true);const r=await new ZXing.BrowserMultiFormatReader(hints).decodeFromImageUrl(url);URL.revokeObjectURL(url);return cleanCode(r.getText())}
+  catch(e){toast('ما قدرتش نقرا الباركود. قرّب أكثر، ضوء مزيان، ولا كتبو بيدك',3500);return null}
+}
+function snapVideo(v){try{const w=v.videoWidth,h=v.videoHeight;if(!w)return null;const s=Math.min(1,520/Math.max(w,h));const c=document.createElement('canvas');c.width=Math.round(w*s);c.height=Math.round(h*s);c.getContext('2d').drawImage(v,0,0,c.width,c.height);return c.toDataURL('image/jpeg',.72)}catch(e){return null}}
+function scanBarcode(){
+  return new Promise(resolve=>{
+    let done=false,stream=null,timer=null,reader=null;
+    const ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:#000;z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff';
+    ov.innerHTML=`<video playsinline muted autoplay style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+    <div style="position:relative;width:78vw;max-width:420px;height:38vw;max-height:200px;border:3px solid #4ade80;border-radius:16px;box-shadow:0 0 0 9999px rgba(0,0,0,.45)"><div class="scanline" style="position:absolute;left:6%;right:6%;top:50%;height:2px;background:#ef4444;box-shadow:0 0 8px #ef4444"></div></div>
+    <div id="scMsg" style="position:relative;margin-top:18px;font-size:16px;text-align:center;padding:0 20px">وجّه الكاميرا للباركود ديال العلبة…</div>
+    <div style="position:absolute;bottom:calc(28px + env(safe-area-inset-bottom,0px));display:flex;gap:10px"><button class="btn btn-g" id="scCancel">✕ إلغاء</button><button class="btn btn-s" id="scPhoto">🖼️ اختار صورة</button></div>`;
+    document.body.appendChild(ov);
+    const v=ov.querySelector('video'),msg=ov.querySelector('#scMsg');
+    const stop=()=>{clearInterval(timer);try{reader&&reader.reset()}catch(e){}if(stream)stream.getTracks().forEach(t=>t.stop());ov.remove()};
+    const finish=(code,photo)=>{if(done)return;done=true;if(photo!==undefined)lastScanPhoto=photo;stop();if(code){try{navigator.vibrate&&navigator.vibrate(80)}catch(e){}}resolve(code||null)};
+    ov.querySelector('#scCancel').onclick=()=>finish(null);
+    ov.querySelector('#scPhoto').onclick=async()=>{const f=await pickFile(false,'image/*');if(!f)return;done=true;stop();resolve(await decodeFile(f))};
+    (async()=>{
+      try{
+        if(!navigator.mediaDevices?.getUserMedia)throw new Error('nocam');
+        stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
+        if(done){stream.getTracks().forEach(t=>t.stop());return}
+        v.srcObject=stream;await v.play();
+        let det=null;
+        if('BarcodeDetector' in window){try{const sup=await BarcodeDetector.getSupportedFormats();const f=BC_FORMATS.filter(x=>sup.includes(x));if(f.length)det=new BarcodeDetector({formats:f})}catch(e){}}
+        if(det){
+          let busy=false;
+          timer=setInterval(async()=>{if(busy||done)return;busy=true;try{const r=await det.detect(v);if(r[0])finish(cleanCode(r[0].rawValue),snapVideo(v))}catch(e){}busy=false},220);
+        }else{
+          msg.textContent='كنوجد القارئ…';await loadZXing();if(done)return;msg.textContent='وجّه الكاميرا للباركود ديال العلبة…';
+          const hints=new Map();hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
+          const mfr=new ZXing.MultiFormatReader();mfr.setHints(hints);
+          const cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});let busy=false;
+          timer=setInterval(()=>{if(busy||done||!v.videoWidth)return;busy=true;
+            try{const w=v.videoWidth,h=v.videoHeight,sc=Math.min(1,1280/w);cv.width=Math.round(w*sc);cv.height=Math.round(h*sc);cx.drawImage(v,0,0,cv.width,cv.height);
+              const r=mfr.decode(new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(new ZXing.HTMLCanvasElementLuminanceSource(cv))));
+              if(r)finish(cleanCode(r.getText()),snapVideo(v))}catch(e){}
+            busy=false},300);
+        }
+      }catch(e){
+        msg.innerHTML=(e&&e.name==='NotAllowedError')?'📷 الكاميرا ممنوعة. سمح للتطبيق باستعمال الكاميرا من إعدادات المتصفح، ولا ضغط «اختار صورة».':'📷 الكاميرا ما متوفراش هنا. ضغط «اختار صورة» باش تصور العلبة.';
+        ov.querySelector('#scPhoto').textContent='📷 صوّر العلبة';
+        ov.querySelector('#scPhoto').onclick=async()=>{const f=await pickFile(true);if(!f)return;done=true;stop();resolve(await decodeFile(f))};
+      }
+    })();
+  });
 }
 // Data Matrix ديال العلب كيكون فيه GTIN بعد (01)
 function cleanCode(t){t=String(t||'').replace(/[\x1d]/g,'');const m=t.match(/^01(\d{14})/);if(m)return m[1].replace(/^0/,'');return t.trim()}
@@ -727,7 +769,7 @@ function vMeds(){
 let catQ='',refQ='';
 function renderRefList(){
   const arr=refQ.trim()?refSearch(refQ,60):[];
-  $('#refListBox').innerHTML=refQ.trim()?`<div class="card">${arr.length?arr.map((r,i)=>`<div class="med"><div class="row"><b class="grow">${esc(refLabel(r))}</b><span>${r.p?money(r.p):''}</span></div><div class="small">${esc(r.d||'—')}${r.l?' · '+esc(r.l):''}${r.b?' · 🏷️ '+r.b:''}</div><button class="btn btn-s btn-sm" style="margin-top:4px" onclick="addRefToCat(${REF.rows.indexOf(r)})">+ زيد لأدويتي</button></div>`).join(''):'<div class="empty">ما لقيت والو.</div>'}</div>`:'';
+  $('#refListBox').innerHTML=refQ.trim()?`<div class="card">${arr.length?arr.map((r,i)=>`<div class="med"><div class="row"><b class="grow">${esc(refLabel(r))}</b><span>${r.p?money(r.p):''}</span></div><div class="small">${esc(r.d||'—')}${r.l?' · '+esc(r.l):''}${r.b?' · 🏷️ '+r.b:''}${r.st?` · <span class="badge ${refSold(r)?'b-ok':'b-or'}">${esc(r.st)}</span>`:''}</div><button class="btn btn-s btn-sm" style="margin-top:4px" onclick="addRefToCat(${REF.rows.indexOf(r)})">+ زيد لأدويتي</button></div>`).join(''):'<div class="empty">ما لقيت والو.</div>'}</div>`:'';
 }
 function addRecall(){
   const name=$('#rcN').value.trim();if(!name){toast('كتب اسم الدواء');return}
@@ -771,12 +813,14 @@ function openCatForm(id,preset={},cb){
   window._catCb=cb;window._catDraft={...c};window._catNew=!id;
   openSheet(`<div class="bar"><button class="btn btn-g btn-sm" onclick="${back}">✕</button><b>${id?'تعديل الدواء':'دواء جديد'}</b><button class="btn btn-p btn-sm" onclick="saveCat()">حفظ</button></div>
   <div class="card"><div class="row"><span id="c_ph">${c.photo?`<img class="bx lg" src="${c.photo}">`:`<div class="bx lg none">📦</div>`}</span><div class="grow"><b>صورة العلبة</b><div class="small">كتعاون المريض يعرف الدوا بالعين.</div><div class="row" style="margin-top:6px"><button class="btn btn-s btn-sm" onclick="catPhotoTake()">📷 ${c.photo?'بدّل':'صوّر'} العلبة</button>${c.photo?`<button class="btn btn-g btn-sm" onclick="window._catDraft.photo='';$('#c_ph').innerHTML='<div class=&quot;bx lg none&quot;>📦</div>'">حيّد</button>`:''}</div></div></div>
-  <label class="f">الاسم التجاري + الجرعة</label><input class="i" id="c_name" value="${esc(c.name)}" placeholder="Doliprane 1000 mg cp">
+  <label class="f">الاسم التجاري + الجرعة</label><input class="i" id="c_name" value="${esc(c.name)}" placeholder="${REF?'كتب 3 حروف وختار من لائحة AMMPS':'Doliprane 1000 mg cp'}" list="cfList" autocomplete="off" oninput="cfSuggest(this.value)" onchange="cfPick(this.value)"><datalist id="cfList"></datalist>${REF&&!c.name?`<div class="small" style="margin-top:4px">💡 الباركود ما كاينش فاللائحة ديال AMMPS. اختار الدوا بالسمية مرة وحدة، والتطبيق كيعقل عليه فالسكان الجاي.</div>`:''}
   <label class="f">المادة الفعالة (DCI)</label><input class="i" id="c_dci" value="${esc(c.dci)}" dir="ltr" placeholder="paracétamol">
   <label class="f">الاستعمال (كما قال الطبيب ولا الصيدلي)</label><input class="i" id="c_use" value="${esc(c.use)}">
   <div class="g2"><div><label class="f">ثمن العلبة PPV (درهم)</label><input class="i" id="c_price" value="${esc(c.price)}" inputmode="decimal"></div><div><label class="f">الباركود</label><div class="row" style="flex-wrap:nowrap"><input class="i" id="c_bc" value="${esc(c.barcode)}" inputmode="numeric" dir="ltr"><button class="btn btn-g btn-sm" onclick="scanBarcode().then(v=>{if(v){$('#c_bc').value=v;if(lastScanPhoto&&!window._catDraft.photo){window._catDraft.photo=lastScanPhoto;$('#c_ph').innerHTML=boxImg(lastScanPhoto,'lg')}}})">📷</button></div></div></div>
   ${id&&!cb?`<button class="btn btn-d" style="margin-top:12px" onclick="delCat('${id}')">🗑️ مسح من الكتالوج</button>`:''}</div>`);
 }
+function cfSuggest(v){if(!REF||norm(v).length<3)return;$('#cfList').innerHTML=refSearch(v,20).map(r=>`<option value="${esc(refLabel(r))}">${r.p?money(r.p):''}</option>`).join('')}
+function cfPick(v){if(!REF)return;const r=refIdx.byName.get(norm(v));if(!r)return;if(r.d)$('#c_dci').value=r.d;if(r.p)$('#c_price').value=r.p;toast('✅ من لائحة AMMPS'+(r.p?' — '+money(r.p):''))}
 async function catPhotoTake(){const f=await pickFile(true);if(!f)return;try{window._catDraft.photo=await compress(f,520,.72);$('#c_ph').innerHTML=boxImg(window._catDraft.photo,'lg')}catch(e){toast('ما قدرتش نقرا الصورة')}}
 function saveCat(){
   const c=window._catDraft;c.name=$('#c_name').value.trim();c.dci=$('#c_dci').value.trim();c.use=$('#c_use').value.trim();c.price=+String($('#c_price').value).replace(',','.')||0;c.barcode=$('#c_bc').value.trim();
